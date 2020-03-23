@@ -1,0 +1,47 @@
+<html>
+    <head>
+        <link rel='stylesheet' href='style/main.css'/>
+        <link rel='icon' href='images/favicon.png'/>
+        <title>PointsOfInterest</title>
+    </head>
+    <body>
+        <div id='content'>
+            <header>
+                <nav>
+                    <a href='index.php' class='mainmenu'>PointsOfInterest</a>
+                </nav>
+                <h1 id='title'>PointsOfInterest</h1>
+            </header>
+            <div id='main'>
+                <table>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Country</th>
+                        <th>Region</th>
+                        <th>Longitude</th>
+                        <th>Latitude</th>
+                        <th>Description</th>
+                        <th>Recommended</th>
+                    </tr>
+<?php
+while ($row=$results->fetch(PDO::FETCH_ASSOC)){
+?>
+                    <tr>
+                        <td><?=$row['name']?></td>
+                        <td><?=$row['type']?></td>
+                        <td><?=$row['country']?></td>
+                        <td><?=$row['region']?></td>
+                        <td><?=$row['lon']?></td>
+                        <td><?=$row['lat']?></td>
+                        <td><?=$row['description']?></td>
+                        <td><?=$row['recommended']?></td>
+                    </tr>
+<?php
+}
+?>
+                </table>
+            </div><!--[end]#main-->
+        </div><!--[end]#content-->
+    </body>
+</html>
