@@ -1,0 +1,38 @@
+<?php
+include('functions.php');
+$action=strtolower($_GET['action']);
+$value=$_GET['action'];
+?>
+<html>
+    <head>
+        <link rel='stylesheet' href='style/main.css'/>
+        <link rel='icon' href='images/favicon.png'/>
+        <title>PointsOfInterest</title>
+    </head>
+    <body>
+        <div id='content'>
+            <header>
+                <?php navbar();?>
+                <h1 id='title'>PointsOfInterest</h1>
+            </header>
+            <div id='main'>
+                <table>
+                <form method='post' action='<?php echo "$action";?>'>
+                    <tr>
+                        <td><label for='username'>Username:</label></td>
+                        <td><input name='username' id='username' type='text'/></td>
+                    </tr>
+                    <tr>
+                        <td><label for='password'>Password:</label></td>
+                        <td><input name='password' id='password' type='password'/></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><input name='action' type='submit' value='<?php echo "$value";?>'/></td>
+                    </tr>
+                </form>
+                </table>
+            </div><!--[end]#main-->
+        </div><!--[end]#content-->
+    </body>
+</html>
