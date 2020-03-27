@@ -36,6 +36,7 @@ $app->get('/', function(Request $req, Response $res, array $args) use($conn,$vie
 });
 
 $app->get('/view/{id}', function(Request $req, Response $res, array $args) use($conn,$view){
+    $_SESSION['pageID']=$args['id'];
     $regions=$conn->prepare('SELECT DISTINCT region FROM pointsofinterest');
     $regions->execute();
     $reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE poi_id=?');
@@ -81,6 +82,21 @@ $app->post('/add_poi', function(Request $req, Response $res, array $args) use($c
     $statement=$conn->prepare('INSERT INTO pointsofinterest (name,type,country,region,lon,lat,description,username) VALUES (?,?,?,?,?,?,?,?)');
     $statement->execute([$post['name'],$post['type'],$post['country'],$post['region'],$post['lon'],$post['lat'],$post['description'],$post['username']]);
     return $res->withHeader('Location', '/pointsofinterest');
+});
+
+$app->get('/view/{id}/review', function(Request $req, Response $res, array $args) use($conn,$view){
+    $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE ID=?');
+    $statement->execute([$args['id']]);
+    $res=$view->render($res, 'review_poi.phtml', ['results'=>$statement]);
+    return $res;
+});
+
+$app->post('/review_poi', function(Request $req, Response $res, array $args) use($conn){
+    $post=$req->getParsedBody();
+    $ID=$post['poi_id'];
+    $statement=$conn->prepare('INSERT INTO poi_reviews (poi_id,review) VALUES (?,?)');
+    $statement->execute([$ID,$post['review']]);
+    return $res->withHeader('Location', "/pointsofinterest/view/$ID");
 });
 
 // User account pages

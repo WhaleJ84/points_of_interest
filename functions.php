@@ -22,14 +22,14 @@ function navbar() {
     echo '</nav>';
 }
 
-function poi_options(){
+function poi_options($ID=null){
     echo '<nav>';
     if (!isset ($_SESSION['gatekeeper'])){
         echo '<p>Please login to get further functionality.</p>';
     }else{
         if (stripos($_SERVER['REQUEST_URI'], '/view/')){
             $name = 'Review';
-            $link = "/pointsofinterest/review";
+            $link = "/pointsofinterest/view/$ID/review";
         }else{
             if (!stripos($_SERVER['REQUEST_URI'], '/pointsofinterest/add')){
                 $name = 'Add';

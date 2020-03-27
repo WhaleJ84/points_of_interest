@@ -15,7 +15,7 @@ include('functions.php');
             </header>
             <div id='main'>
                 <nav>
-<?poi_options();?>
+<?poi_options($_SESSION['pageID']);?>
 <form method='get' action='/pointsofinterest/region'>
     <label>Search within region: </label>
     <select name='region'/>
