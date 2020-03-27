@@ -26,10 +26,45 @@ $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $view=new \Slim\Views\PhpRenderer('views');
 
 // PointsOfInterest pages
-$app->get('/', function(Request $req, Response $res, array $args) use($conn, $view){
+$app->get('/', function(Request $req, Response $res, array $args) use($conn,$view){
+    $regions=$conn->prepare('SELECT DISTINCT region FROM pointsofinterest');
+    $regions->execute();
     $statement=$conn->prepare('SELECT * FROM pointsofinterest ORDER BY recommended DESC');
     $statement->execute();
-    $res=$view->render($res, 'points_of_interest.phtml', ['results'=>$statement]);
+    $res=$view->render($res, 'points_of_interest.phtml', ['results'=>$statement, 'regions'=>$regions]);
+    return $res;
+});
+
+$app->get('/view/{id}', function(Request $req, Response $res, array $args) use($conn,$view){
+    $regions=$conn->prepare('SELECT DISTINCT region FROM pointsofinterest');
+    $regions->execute();
+    $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE id=? ORDER BY recommended DESC');
+    $statement->execute([$args['id']]);
+    $res=$view->render($res, 'points_of_interest.phtml', ['results'=>$statement, 'regions'=>$regions]);
+    return $res;
+});
+
+// FIX SQL STATEMENT. ID KEEPS GETTING SENT IN QUOTES.
+$app->post('/recommend', function(Request $req, Response $res, array $args) use($conn){
+    $post=$req->getParsedBody();
+    $statement=$conn->prepare('UDATE pointsofinterest SET recommended=recommended+1 WHERE ID=?');
+    $statement->execute([$post['ID']]);
+    return $res->withHeader('Location', "/view/$id");
+});
+
+$app->get('/region', function(Request $req, Response $res, array $args) use($conn){
+    $get=$req->getQueryParams();
+    $region=$get['region'];
+    return $res->withHeader('Location', "/pointsofinterest/region/$region");
+});
+
+// AFTER THIS IS FIXED, REDO ACCOUNTS SYSTEM TO REMOVE NON-SLIM ROUTING
+$app->get('/region/{region}', function(Request $req, Response $res, array $args) use($conn,$view){
+    $regions=$conn->prepare('SELECT DISTINCT region FROM pointsofinterest');
+    $regions->execute();
+    $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE region=? ORDER BY recommended DESC');
+    $statement->execute([$args['region']]);
+    $res=$view->render($res, 'points_of_interest.phtml', ['results'=>$statement, 'regions'=>$regions]);
     return $res;
 });
 
@@ -47,7 +82,7 @@ $app->post('/add_poi', function(Request $req, Response $res, array $args) use($c
 
 // User account pages
 $app->get('/accounts', function(Request $req, Response $res, array $args) use($view){
-    $res=$view->render($res, 'accounts.phtml');
+    $res=$view->render($res, '/accounts.phtml');
     return $res;
 });
 

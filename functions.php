@@ -4,14 +4,14 @@ function navbar() {
     echo '<nav>';
     if (!isset ($_SESSION['gatekeeper'])){
         $session = 'Login';
-        $s_link = 'accounts?action=Login';
+        $s_link = '/pointsofinterest/accounts?action=login';
         $account = 'Signup';
-        $a_link = 'accounts?action=Signup';
+        $a_link = '/pointsofinterest/accounts?action=signup';
     }else{
         $session = 'Logout';
         $s_link = 'logout';
         $account = 'Reset Password';
-        $a_link = 'accounts?action=Reset';
+        $a_link = '/pointsofinterest/accounts?action=reset';
     }
     $navbar = [ "$session" => "$s_link",
         "$account" => "$a_link",

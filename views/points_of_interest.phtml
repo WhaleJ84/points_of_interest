@@ -20,6 +20,16 @@ include('functions.php');
 <?}else{?>
                     <p>Login to get further functionality</p>
 <?}?>
+<form method='get' action='/pointsofinterest/region'>
+    <label>Search within region: </label>
+    <select name='region'/>
+<?php
+while ($row=$regions->fetch(PDO::FETCH_ASSOC)){
+?>
+    <option value='<?echo $row['region']?>'><?echo $row['region']?></option>
+<?}?>
+    <input type='submit' value='Search'/>
+</form>
 
                 <table>
                     <tr>
@@ -36,14 +46,20 @@ include('functions.php');
 while ($row=$results->fetch(PDO::FETCH_ASSOC)){
 ?>
                     <tr>
-                        <td><?=$row['name']?></td>
+                        <td><a href='view/<?echo $row['ID'];?>'><?=$row['name']?></a></td>
                         <td><?=$row['type']?></td>
                         <td><?=$row['country']?></td>
                         <td><?=$row['region']?></td>
                         <td><?=$row['lon']?></td>
                         <td><?=$row['lat']?></td>
                         <td><?=$row['description']?></td>
-                        <td><?=$row['recommended']?></td>
+                        <td><?=$row['recommended'];
+if (stripos($_SERVER['REQUEST_URI'], '/view/') && isset($_SESSION['gatekeeper'])){?>
+<form method='post' action='/pointsofinterest/recommend'>
+<input type='hidden' name='ID' value='<?=$row['ID']?>'/>
+<input type='submit' value='Recommend'/>
+</form>
+<?}?></td>
                     </tr>
 <?php
 }
