@@ -38,9 +38,11 @@ $app->get('/', function(Request $req, Response $res, array $args) use($conn,$vie
 $app->get('/view/{id}', function(Request $req, Response $res, array $args) use($conn,$view){
     $regions=$conn->prepare('SELECT DISTINCT region FROM pointsofinterest');
     $regions->execute();
+    $reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE poi_id=?');
+    $reviews->execute([$args['id']]);
     $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE id=? ORDER BY recommended DESC');
     $statement->execute([$args['id']]);
-    $res=$view->render($res, 'points_of_interest.phtml', ['results'=>$statement, 'regions'=>$regions]);
+    $res=$view->render($res, 'points_of_interest.phtml', ['results'=>$statement, 'regions'=>$regions, 'reviews'=>$reviews]);
     return $res;
 });
 

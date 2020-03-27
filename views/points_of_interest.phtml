@@ -66,6 +66,21 @@ if (stripos($_SERVER['REQUEST_URI'], '/view/') && isset($_SESSION['gatekeeper'])
 }
 ?>
                 </table>
+<?if (stripos($_SERVER['REQUEST_URI'], '/view/')){?>
+<table>
+    <tr>
+        <th>Reviews</th>
+    </tr>
+<?while ($row=$reviews->fetch(PDO::FETCH_ASSOC)){?>
+    <tr>
+        <td><?=$row['review']?></td>
+    </tr>
+    <tr>
+        <td><br/></td>
+    </tr>
+<?}?>
+</table>
+<?}?>
             </div><!--[end]#main-->
         </div><!--[end]#content-->
     </body>
