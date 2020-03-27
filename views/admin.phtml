@@ -1,0 +1,41 @@
+<?php
+include('functions.php');
+?>
+<html>
+    <head>
+        <link rel='stylesheet' href='/pointsofinterest/style/main.css'/>
+        <link rel='icon' href='/pointsofinterest/images/favicon.png'/>
+        <title>PointsOfInterest</title>
+    </head>
+    <body>
+        <div id='content'>
+            <header>
+                <?php navbar();?>
+                <h1 id='title'>PointsOfInterest</h1>
+            </header>
+            <div id='main'>
+                <table>
+                    <tr>
+                        <td></td>
+                        <td>Reviews awaiting approval</td>
+                        <td></td>
+                    </tr>
+<?while ($row=$reviews->fetch(PDO::FETCH_ASSOC)){
+$conn=new PDO('mysql:host=localhost;dbname=assign225','assign225','umoodahc');
+$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE ID=?');
+$statement->execute([$row['poi_id']]);
+$name=$statement->fetch(PDO::FETCH_ASSOC)?>
+                    <tr>
+                        <form method='post' action='/pointsofinterest/admin/approve'>
+                        <td><?=$name['name']?><input type='hidden' name='id' value='<?=$row['id']?>'/></td>
+                        <td><?=$row['review']?></td>
+                        <td><input type='submit' value='approve'/></td>
+                        </form>
+                    </tr>
+<?}?>
+                </table>
+            </div><!--[end]#main-->
+        </div><!--[end]#content-->
+    </body>
+</html>

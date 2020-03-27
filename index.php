@@ -35,15 +35,32 @@ $app->get('/', function(Request $req, Response $res, array $args) use($conn,$vie
     return $res;
 });
 
+$app->get('/admin', function(Request $req, Response $res, array $args) use($conn,$view){
+    if (!isset($_SESSION['isadmin'])){
+        return $res->withHeader('Location','/pointsofinterest');
+    }
+    $reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE approved=0 ORDER BY approved ASC');
+    $reviews->execute();
+    $res=$view->render($res, 'admin.phtml', ['reviews'=>$reviews]);
+    return $res;
+});
+
+$app->post('/admin/approve', function(Request $req, Response $res, array $args) use($conn){
+    $post=$req->getParsedBody();
+    $approve=$conn->prepare('UPDATE poi_reviews SET approved=1 WHERE id=?');
+    $approve->execute([$post['id']]);
+    return $res->withHeader('Location', '/pointsofinterest/admin');
+});
+
 $app->get('/view/{id}', function(Request $req, Response $res, array $args) use($conn,$view){
     $_SESSION['pageID']=$args['id'];
     $regions=$conn->prepare('SELECT DISTINCT region FROM pointsofinterest');
     $regions->execute();
-    $reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE poi_id=?');
-    $reviews->execute([$args['id']]);
+    $approved=$conn->prepare('SELECT * FROM poi_reviews WHERE poi_id=? AND approved=1');
+    $approved->execute([$args['id']]);
     $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE id=? ORDER BY recommended DESC');
     $statement->execute([$args['id']]);
-    $res=$view->render($res, 'points_of_interest.phtml', ['results'=>$statement, 'regions'=>$regions, 'reviews'=>$reviews]);
+    $res=$view->render($res, 'points_of_interest.phtml', ['results'=>$statement, 'regions'=>$regions, 'approved'=>$approved]);
     return $res;
 });
 
@@ -111,6 +128,9 @@ $app->post('/login', function(Request $req, Response $res, array $args) use($con
     $statement->execute([$post['username'], $post['password']]);
     $row=$statement->fetch(PDO::FETCH_ASSOC);
     $_SESSION['gatekeeper']=$row['username'];
+    if ($row['isadmin'] == 1){
+        $_SESSION['isadmin']=1;
+    }
     return $res->withHeader('Location', '/pointsofinterest');
 });
 

@@ -15,7 +15,7 @@ include('functions.php');
             </header>
             <div id='main'>
                 <nav>
-<?poi_options($_SESSION['pageID']);?>
+<?poi_options(@$_SESSION['pageID']);?>
 <form method='get' action='/pointsofinterest/region'>
     <label>Search within region: </label>
     <select name='region'/>
@@ -71,7 +71,7 @@ if (stripos($_SERVER['REQUEST_URI'], '/view/') && isset($_SESSION['gatekeeper'])
     <tr>
         <th>Reviews</th>
     </tr>
-<?while ($row=$reviews->fetch(PDO::FETCH_ASSOC)){?>
+<?while ($row=$approved->fetch(PDO::FETCH_ASSOC)){?>
     <tr>
         <td><?=$row['review']?></td>
     </tr>
