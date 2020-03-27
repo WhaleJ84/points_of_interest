@@ -15,11 +15,7 @@ include('functions.php');
             </header>
             <div id='main'>
                 <nav>
-<?php if (isset($_SESSION['gatekeeper'])){?>
-                    <nav><a href='add'>Add</a></nav>
-<?}else{?>
-                    <p>Login to get further functionality</p>
-<?}?>
+<?poi_options();?>
 <form method='get' action='/pointsofinterest/region'>
     <label>Search within region: </label>
     <select name='region'/>
@@ -46,7 +42,12 @@ while ($row=$regions->fetch(PDO::FETCH_ASSOC)){
 while ($row=$results->fetch(PDO::FETCH_ASSOC)){
 ?>
                     <tr>
-                        <td><a href='view/<?echo $row['ID'];?>'><?=$row['name']?></a></td>
+                        <td>
+<? if (!stripos($_SERVER['REQUEST_URI'], '/view/')){?>
+   <a href='view/<?echo $row['ID'];?>'><?=$row['name']?></a></td>
+<?}else{?>
+   <?=$row['name']?></td>
+<?}?>
                         <td><?=$row['type']?></td>
                         <td><?=$row['country']?></td>
                         <td><?=$row['region']?></td>
@@ -56,7 +57,7 @@ while ($row=$results->fetch(PDO::FETCH_ASSOC)){
                         <td><?=$row['recommended'];
 if (stripos($_SERVER['REQUEST_URI'], '/view/') && isset($_SESSION['gatekeeper'])){?>
 <form method='post' action='/pointsofinterest/recommend'>
-<input type='hidden' name='ID' value='<?=$row['ID']?>'/>
+<input type='hidden' name='ID' value='<?echo str_replace("'","",$row['ID']);?>'/>
 <input type='submit' value='Recommend'/>
 </form>
 <?}?></td>

@@ -22,31 +22,22 @@ function navbar() {
     echo '</nav>';
 }
 
-function poi_options($id) {
+function poi_options(){
     echo '<nav>';
-    if (!isset ($_SESSION['gatekeeper'])) {
+    if (!isset ($_SESSION['gatekeeper'])){
         echo '<p>Please login to get further functionality.</p>';
-    } else {
-        if (stripos($_SERVER['REQUEST_URI'], '/points_of_interest.php?id=')) {
+    }else{
+        if (stripos($_SERVER['REQUEST_URI'], '/view/')){
             $name = 'Review';
-            $link = "review_points_of_interest.php?id=$id";
-        } else {
-            if (!stripos($_SERVER['REQUEST_URI'], '/add_points_of_interest.php')) {
+            $link = "/pointsofinterest/review";
+        }else{
+            if (!stripos($_SERVER['REQUEST_URI'], '/pointsofinterest/add')){
                 $name = 'Add';
-                $link = 'add_points_of_interest.php';
+                $link = '/pointsofinterest/add';
             }
         }
-        if (isset ($name)) {
-            $navbar = [ "$name" => "$link" ];
-        }
-        if (!stripos($_SERVER['REQUEST_URI'], '/points_of_interest.php')) {
-            if (isset($navbar)) {
-                $navbar += [ 'Back' => 'points_of_interest.php' ];
-            } else {
-                $navbar = [ 'Back' => 'points_of_interest.php' ];
-            }
-        }
-        foreach ($navbar as $key => $value) {
+        $navbar=[ "$name"=>"$link" ];
+        foreach ($navbar as $key => $value){
             echo "<a href='$value'>$key</a>";
         }
         echo "</nav><br style='clear:both'/>";

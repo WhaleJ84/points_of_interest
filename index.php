@@ -44,12 +44,13 @@ $app->get('/view/{id}', function(Request $req, Response $res, array $args) use($
     return $res;
 });
 
-// FIX SQL STATEMENT. ID KEEPS GETTING SENT IN QUOTES.
 $app->post('/recommend', function(Request $req, Response $res, array $args) use($conn){
     $post=$req->getParsedBody();
-    $statement=$conn->prepare('UDATE pointsofinterest SET recommended=recommended+1 WHERE ID=?');
-    $statement->execute([$post['ID']]);
-    return $res->withHeader('Location', "/view/$id");
+    // Cannot redirect using $post['ID'] for some reason
+    $ID=$post['ID'];
+    $statement=$conn->prepare('UPDATE pointsofinterest SET recommended=recommended+1 WHERE ID=?');
+    $statement->execute([$ID]);
+    return $res->withHeader('Location', "/pointsofinterest/view/$ID");
 });
 
 $app->get('/region', function(Request $req, Response $res, array $args) use($conn){
