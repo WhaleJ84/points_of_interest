@@ -3,8 +3,8 @@ include('functions.php');
 ?>
 <html>
     <head>
-        <link rel='stylesheet' href='style/main.css'/>
-        <link rel='icon' href='images/favicon.png'/>
+        <link rel='stylesheet' href='/pointsofinterest/style/main.css'/>
+        <link rel='icon' href='/pointsofinterest/images/favicon.png'/>
         <title>PointsOfInterest</title>
     </head>
     <body>
@@ -35,7 +35,7 @@ echo "</td>";
                         <td><label for='country'>Country: </label></td>
                         <td><select name='country'>
 <?
-$countries=file('countries.csv');
+$countries=file('countries');
 foreach ($countries as $country){
     echo "<option value='$country'>$country</option>";
     }
