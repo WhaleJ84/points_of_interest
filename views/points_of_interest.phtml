@@ -44,7 +44,7 @@ while ($row=$results->fetch(PDO::FETCH_ASSOC)){
                     <tr>
                         <td>
 <? if (!stripos($_SERVER['REQUEST_URI'], '/view/')){?>
-   <a href='view/<?echo $row['ID'];?>'><?=$row['name']?></a></td>
+   <a href='/pointsofinterest/view/<?echo $row['ID'];?>'><?=$row['name']?></a></td>
 <?}else{?>
    <?=$row['name']?></td>
 <?}?>
