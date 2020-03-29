@@ -36,9 +36,14 @@ function poi_options($ID=null){
                 $link = '/pointsofinterest/add';
             }
         }
-        $navbar=[ "$name"=>"$link" ];
+        $navbar=[ "$name"=>"$link",
+                  "Back"=>"/pointsofinterest" ];
         foreach ($navbar as $key => $value){
-            echo "<a href='$value'>$key</a>";
+            if ("$key" == 'Back'){
+                echo "<input type='submit' id='link' value='$key' onclick='getPoi()'/>";
+            }else{
+                echo "<a href='$value'>$key</a>";
+            }
         }
         echo "</nav><br style='clear:both'/>";
     }

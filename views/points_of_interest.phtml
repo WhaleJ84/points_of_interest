@@ -5,6 +5,7 @@ include('functions.php');
     <head>
         <link rel='stylesheet' href='/pointsofinterest/style/main.css'/>
         <link rel='icon' href='/pointsofinterest/images/favicon.png'/>
+        <script type='text/javascript' src='/pointsofinterest/script/ajax.js'></script>
         <title>PointsOfInterest</title>
     </head>
     <body>
@@ -15,72 +16,15 @@ include('functions.php');
             </header>
             <div id='main'>
                 <nav>
-<?poi_options(@$_SESSION['pageID']);?>
-<form method='get' action='/pointsofinterest/region'>
-    <label>Search within region: </label>
-    <select name='region'/>
-<?php
-while ($row=$regions->fetch(PDO::FETCH_ASSOC)){
-?>
+                    <?poi_options(@$_SESSION['pageID']);?>
+                <label>Search within region: </label>
+                <select name='region' id='region'/>
+<?while ($row=$regions->fetch(PDO::FETCH_ASSOC)){?>
     <option value='<?echo $row['region']?>'><?echo $row['region']?></option>
 <?}?>
-    <input type='submit' value='Search'/>
-</form>
-
-                <table>
-                    <tr>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Country</th>
-                        <th>Region</th>
-                        <th>Longitude</th>
-                        <th>Latitude</th>
-                        <th>Description</th>
-                        <th>Recommended</th>
-                    </tr>
-<?php
-while ($row=$results->fetch(PDO::FETCH_ASSOC)){
-?>
-                    <tr>
-                        <td>
-<? if (!stripos($_SERVER['REQUEST_URI'], '/view/')){?>
-   <a href='/pointsofinterest/view/<?echo $row['ID'];?>'><?=$row['name']?></a></td>
-<?}else{?>
-   <?=$row['name']?></td>
-<?}?>
-                        <td><?=$row['type']?></td>
-                        <td><?=$row['country']?></td>
-                        <td><?=$row['region']?></td>
-                        <td><?=$row['lon']?></td>
-                        <td><?=$row['lat']?></td>
-                        <td><?=$row['description']?></td>
-                        <td><?=$row['recommended'];
-if (stripos($_SERVER['REQUEST_URI'], '/view/') && isset($_SESSION['gatekeeper'])){?>
-<form method='post' action='/pointsofinterest/recommend'>
-<input type='hidden' name='ID' value='<?echo str_replace("'","",$row['ID']);?>'/>
-<input type='submit' value='Recommend'/>
-</form>
-<?}?></td>
-                    </tr>
-<?php
-}
-?>
-                </table>
-<?if (stripos($_SERVER['REQUEST_URI'], '/view/')){?>
-<table>
-    <tr>
-        <th>Reviews</th>
-    </tr>
-<?while ($row=$approved->fetch(PDO::FETCH_ASSOC)){?>
-    <tr>
-        <td><?=$row['review']?></td>
-    </tr>
-    <tr>
-        <td><br/></td>
-    </tr>
-<?}?>
-</table>
-<?}?>
+                <input type='submit' id='regionButton' value='Search'/>
+                <div id='searchresults'></div>
+                <div id='reviews'></div>
             </div><!--[end]#main-->
         </div><!--[end]#content-->
     </body>

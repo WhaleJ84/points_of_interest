@@ -27,11 +27,45 @@ $view=new \Slim\Views\PhpRenderer('views');
 
 // PointsOfInterest pages
 $app->get('/', function(Request $req, Response $res, array $args) use($conn,$view){
+    unset($_SESSION['pageID']);
     $regions=$conn->prepare('SELECT DISTINCT region FROM pointsofinterest');
     $regions->execute();
     $statement=$conn->prepare('SELECT * FROM pointsofinterest ORDER BY recommended DESC');
     $statement->execute();
     $res=$view->render($res, 'points_of_interest.phtml', ['results'=>$statement, 'regions'=>$regions]);
+    return $res;
+});
+
+$app->get('/get_poi', function(Request $req, Response $res, array $args) use($conn,$view){
+    unset($_SESSION['pageID']);
+    $statement=$conn->prepare('SELECT * FROM pointsofinterest ORDER BY recommended DESC');
+    $statement->execute();
+    $res=$view->render($res, 'get_poi.phtml', ['results'=>$statement]);
+    return $res;
+});
+
+$app->get('/get_review', function(Request $req, Response $res, array $args) use($conn,$view){
+    $reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE approved=1');
+    $reviews->execute();
+    $res=$view->render($res, 'get_review.phtml', ['reviews'=>$reviews]);
+    return $res;
+});
+
+$app->get('/region/{region}', function(Request $req, Response $res, array $args) use($conn,$view){
+    unset($_SESSION['pageID']);
+    $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE region=? ORDER BY recommended DESC');
+    $statement->execute([$args['region']]);
+    $res=$view->render($res, 'get_poi.phtml', ['results'=>$statement]);
+    return $res;
+});
+
+$app->get('/view/{id}', function(Request $req, Response $res, array $args) use($conn,$view){
+    $_SESSION['pageID']=$args['id'];
+    $reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE approved=1 ORDER BY approved ASC');
+    $reviews->execute();
+    $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE ID=? ORDER BY recommended DESC');
+    $statement->execute([$args['id']]);
+    $res=$view->render($res, 'get_poi.phtml', ['results'=>$statement, 'reviews'=>$reviews]);
     return $res;
 });
 
@@ -52,40 +86,12 @@ $app->post('/admin/approve', function(Request $req, Response $res, array $args) 
     return $res->withHeader('Location', '/pointsofinterest/admin');
 });
 
-$app->get('/view/{id}', function(Request $req, Response $res, array $args) use($conn,$view){
-    $_SESSION['pageID']=$args['id'];
-    $regions=$conn->prepare('SELECT DISTINCT region FROM pointsofinterest');
-    $regions->execute();
-    $approved=$conn->prepare('SELECT * FROM poi_reviews WHERE poi_id=? AND approved=1');
-    $approved->execute([$args['id']]);
-    $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE id=? ORDER BY recommended DESC');
-    $statement->execute([$args['id']]);
-    $res=$view->render($res, 'points_of_interest.phtml', ['results'=>$statement, 'regions'=>$regions, 'approved'=>$approved]);
-    return $res;
-});
-
 $app->post('/recommend', function(Request $req, Response $res, array $args) use($conn){
     $post=$req->getParsedBody();
     // Cannot redirect using $post['ID'] for some reason
-    $ID=$post['ID'];
     $statement=$conn->prepare('UPDATE pointsofinterest SET recommended=recommended+1 WHERE ID=?');
-    $statement->execute([$ID]);
-    return $res->withHeader('Location', "/pointsofinterest/view/$ID");
-});
-
-$app->get('/region', function(Request $req, Response $res, array $args) use($conn){
-    $get=$req->getQueryParams();
-    $region=$get['region'];
-    return $res->withHeader('Location', "/pointsofinterest/region/$region");
-});
-
-// AFTER THIS IS FIXED, REDO ACCOUNTS SYSTEM TO REMOVE NON-SLIM ROUTING
-$app->get('/region/{region}', function(Request $req, Response $res, array $args) use($conn,$view){
-    $regions=$conn->prepare('SELECT DISTINCT region FROM pointsofinterest');
-    $regions->execute();
-    $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE region=? ORDER BY recommended DESC');
-    $statement->execute([$args['region']]);
-    $res=$view->render($res, 'points_of_interest.phtml', ['results'=>$statement, 'regions'=>$regions]);
+    $statement->execute([$post['ID']]);
+    //return $res->withHeader('Location', "/pointsofinterest/view/$ID");
     return $res;
 });
 

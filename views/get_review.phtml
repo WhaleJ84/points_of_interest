@@ -1,0 +1,13 @@
+<?if (isset($_SESSION['pageID'])){?>
+<table>
+    <tr>
+        <th>Reviews</th>
+    </tr>
+<?$review=$reviews->fetch(PDO::FETCH_ASSOC);
+do{?>
+    <tr>
+        <td><?=$review['review']?></td>
+    </tr>
+<?}while ($review=$reviews->fetch(PDO::FETCH_ASSOC))?>
+</table>
+<?}?>
