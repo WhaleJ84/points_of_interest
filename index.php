@@ -1,5 +1,5 @@
 <?php
-require('/opt/lampp/htdocs/~assign225/vendor/autoload.php');
+require('/var/www/html/share/slim4/vendor/autoload.php');
 session_start();
 
 // Import classes from the Psr library (standardised HTTP requests and responses)
