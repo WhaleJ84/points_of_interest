@@ -3,8 +3,8 @@ include('functions.php');
 ?>
 <html>
     <head>
-        <link rel='stylesheet' href='/pointsofinterest/style/main.css'/>
-        <link rel='icon' href='/pointsofinterest/images/favicon.png'/>
+        <link rel='stylesheet' href='/~assign225/style/main.css'/>
+        <link rel='icon' href='/~assign225/images/favicon.png'/>
         <title>PointsOfInterest</title>
     </head>
     <body>
@@ -27,7 +27,7 @@ $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE ID=?');
 $statement->execute([$row['poi_id']]);
 $name=$statement->fetch(PDO::FETCH_ASSOC)?>
                     <tr>
-                        <form method='post' action='/pointsofinterest/admin/approve'>
+                        <form method='post' action='/~assign225/admin/approve'>
                         <td><?=$name['name']?><input type='hidden' name='id' value='<?=$row['id']?>'/></td>
                         <td><?=$row['review']?></td>
                         <td><input type='submit' value='approve'/></td>

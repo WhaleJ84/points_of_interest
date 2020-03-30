@@ -1,7 +1,7 @@
 function getPoi(){
     var results = new XMLHttpRequest();
     results.addEventListener('load', displayPoints);
-    results.open('GET', '/pointsofinterest/get_poi');
+    results.open('GET', '/~assign225/get_poi');
     results.send();
 }
 
@@ -13,7 +13,7 @@ function recommend(id){
             displayPoints;
         }
     };
-    request.open('POST', '/pointsofinterest/recommend', true);
+    request.open('POST', '/~assign225/recommend', true);
     request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     var params = 'ID=' + id;
     request.send(params);
@@ -34,7 +34,7 @@ function regionRequest(){
     // Open the connection to the server
     // We are sending a request to "flights.php" in the same folder and passing in the destination and
     // date as a query string.
-    regions.open('GET', '/pointsofinterest/region/' + region);
+    regions.open('GET', '/~assign225/region/' + region);
 
     // Send the request.
     regions.send();
@@ -44,7 +44,7 @@ function regionRequest(){
 function poiRequest(id){
     var poi = new XMLHttpRequest();
     poi.addEventListener ('load', displayPoints);
-    poi.open('GET','/pointsofinterest/view/' + id);
+    poi.open('GET','/~assign225/view/' + id);
     poi.send();
     getReview(id);
 }
@@ -52,7 +52,7 @@ function poiRequest(id){
 function getReview(id){
     var review = new XMLHttpRequest();
     review.addEventListener('load', displayReviews);
-    review.open('GET', '/pointsofinterest/review/' + id);
+    review.open('GET', '/~assign225/review/' + id);
     review.send();
 }
 

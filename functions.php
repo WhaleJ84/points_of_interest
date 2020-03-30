@@ -4,18 +4,18 @@ function navbar() {
     echo '<nav>';
     if (!isset ($_SESSION['gatekeeper'])){
         $session = 'Login';
-        $s_link = '/pointsofinterest/accounts?action=login';
+        $s_link = '/~assign225/accounts?action=login';
         $account = 'Signup';
-        $a_link = '/pointsofinterest/accounts?action=signup';
+        $a_link = '/~assign225/accounts?action=signup';
     }else{
         $session = 'Logout';
         $s_link = 'logout';
         $account = 'Reset Password';
-        $a_link = '/pointsofinterest/accounts?action=reset';
+        $a_link = '/~assign225/accounts?action=reset';
     }
     $navbar = [ "$session" => "$s_link",
         "$account" => "$a_link",
-        'Home' => '/pointsofinterest' ];
+        'Home' => '/~assign225' ];
     foreach ($navbar as $key => $value){
         echo "<a href='$value' class='mainmenu'>$key</a>";
     }
@@ -29,15 +29,15 @@ function poi_options($ID=null){
     }else{
         if (stripos($_SERVER['REQUEST_URI'], '/view/')){
             $name = 'Review';
-            $link = "/pointsofinterest/view/$ID/review";
+            $link = "/~assign225/view/$ID/review";
         }else{
-            if (!stripos($_SERVER['REQUEST_URI'], '/pointsofinterest/add')){
+            if (!stripos($_SERVER['REQUEST_URI'], '/~assign225/add')){
                 $name = 'Add';
-                $link = '/pointsofinterest/add';
+                $link = '/~assign225/add';
             }
         }
         $navbar=[ "$name"=>"$link",
-                  "Back"=>"/pointsofinterest" ];
+                  "Back"=>"/~assign225" ];
         foreach ($navbar as $key => $value){
             if ("$key" == 'Back'){
                 echo "<input type='submit' id='link' value='$key' onclick='getPoi()'/>";
