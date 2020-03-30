@@ -46,7 +46,6 @@ $app->get('/get_review', function (Request $req, Response $res, array $args) use
     $reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE approved=1');
     $reviews->execute();
     $results=$reviews->fetchAll(PDO::FETCH_ASSOC);
-    //$res=$view->render($res, 'get_review.phtml', ['reviews'=>$reviews]);
     return $res->withJson($results);
 });
 
@@ -60,12 +59,25 @@ $app->get('/region/{region}', function (Request $req, Response $res, array $args
 
 $app->get('/view/{id}', function (Request $req, Response $res, array $args) use ($conn,$view) {
     $_SESSION['pageID']=$args['id'];
-    //$reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE approved=1 ORDER BY approved ASC');
-    //$reviews->execute();
-    $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE ID=? ORDER BY recommended DESC');
+    $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE ID=?');
     $statement->execute([$args['id']]);
     $results=$statement->fetchAll(PDO::FETCH_ASSOC);
-    //$res=$view->render($res, 'get_poi.phtml', ['results'=>$statement, 'reviews'=>$reviews]);
+    return $res->withJson($results);
+});
+
+$app->post('/recommend', function (Request $req, Response $res, array $args) use ($conn) {
+    $post=$req->getParsedBody();
+    $statement=$conn->prepare('UPDATE pointsofinterest SET recommended=recommended+1 WHERE ID=?');
+    $statement->execute([$post['ID']]);
+    if (isset($_SESSION['pageID'])) {
+        $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE ID=?');
+        $statement->execute([$post['ID']]);
+        $results=$statement->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        $statement=$conn->prepare('SELECT * FROM pointsofinterest ORDER BY recommended DESC');
+        $statement->execute();
+        $results=$statement->fetchAll(PDO::FETCH_ASSOC);
+    }
     return $res->withJson($results);
 });
 
@@ -84,15 +96,6 @@ $app->post('/admin/approve', function (Request $req, Response $res, array $args)
     $approve=$conn->prepare('UPDATE poi_reviews SET approved=1 WHERE id=?');
     $approve->execute([$post['id']]);
     return $res->withHeader('Location', '/pointsofinterest/admin');
-});
-
-$app->post('/recommend', function (Request $req, Response $res, array $args) use ($conn) {
-    $post=$req->getParsedBody();
-    // Cannot redirect using $post['ID'] for some reason
-    $statement=$conn->prepare('UPDATE pointsofinterest SET recommended=recommended+1 WHERE ID=?');
-    $statement->execute([$post['ID']]);
-    //return $res->withHeader('Location', "/pointsofinterest/view/$ID");
-    return $res;
 });
 
 $app->get('/add', function (Request $req, Response $res, array $args) use ($view) {

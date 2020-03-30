@@ -5,6 +5,20 @@ function getPoi(){
     results.send();
 }
 
+function recommend(id){
+    var request = new XMLHttpRequest();
+    request.addEventListener ('load', displayPoints);
+    request.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            displayPoints;
+        }
+    };
+    request.open('POST', '/pointsofinterest/recommend', true);
+    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    var params = 'ID=' + id;
+    request.send(params);
+}
+
 function regionRequest(){
     // Create the XMLHttpRequest variable.
     // This variable represents the AJAX communication between client and server.
@@ -57,7 +71,7 @@ function displayPoints(e){
     '<th>Longitude</th>' +
     '<th>Latitude</th>' +
     '<th>Description</th>' +
-    '<th>Recommended</th>' +
+    '<th>Recommendations</th>' +
     '<th>Username</th></tr>';
 
     // Use a 'for' loop to loop through each result
@@ -67,14 +81,14 @@ function displayPoints(e){
     // poiData[i].arrive, etc.
     for (var i = 0; i < poiData.length; i++) {
         results = results + '<tr><td>' + poiData[i].ID + '</td>' +
-        '<td><input type="submit" id="link" value="' + poiData[i].name + '" onclick="poiRequest(' + poiData[i].ID + ')"></td>' +
+        '<td><input type="submit" id="link" value="' + poiData[i].name + ' " onclick="poiRequest(' + poiData[i].ID + ')"></td>' +
         '<td>' + poiData[i].type + '</td>' +
         '<td>' + poiData[i].country + '</td>' +
         '<td>' + poiData[i].region + '</td>' +
         '<td>' + poiData[i].lon + '</td>' +
         '<td>' + poiData[i].lat + '</td>' +
         '<td>' + poiData[i].description + '</td>' +
-        '<td>' + poiData[i].recommended + '</td>' +
+        '<td><input type="submit" id="link" onclick="recommend(' + poiData[i].ID + ')" value="👍 ' + poiData[i].recommended + ' "/></td>' +
         '<td>' + poiData[i].username + '</td></tr>';
     }
 
