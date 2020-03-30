@@ -42,9 +42,9 @@ $app->get('/get_poi', function (Request $req, Response $res, array $args) use ($
     return $res->withJson($results);
 });
 
-$app->get('/get_review', function (Request $req, Response $res, array $args) use ($conn,$view) {
-    $reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE approved=1');
-    $reviews->execute();
+$app->get('/review/{id}', function (Request $req, Response $res, array $args) use ($conn,$view) {
+    $reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE poi_id=? AND approved=1');
+    $reviews->execute([$args['id']]);
     $results=$reviews->fetchAll(PDO::FETCH_ASSOC);
     return $res->withJson($results);
 });
@@ -58,6 +58,7 @@ $app->get('/region/{region}', function (Request $req, Response $res, array $args
 });
 
 $app->get('/view/{id}', function (Request $req, Response $res, array $args) use ($conn,$view) {
+    unset($_SESSION['pageID']);
     $_SESSION['pageID']=$args['id'];
     $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE ID=?');
     $statement->execute([$args['id']]);
@@ -67,18 +68,20 @@ $app->get('/view/{id}', function (Request $req, Response $res, array $args) use 
 
 $app->post('/recommend', function (Request $req, Response $res, array $args) use ($conn) {
     $post=$req->getParsedBody();
-    $statement=$conn->prepare('UPDATE pointsofinterest SET recommended=recommended+1 WHERE ID=?');
-    $statement->execute([$post['ID']]);
-    if (isset($_SESSION['pageID'])) {
-        $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE ID=?');
+    if (isset($_SESSION['gatekeeper'])){
+        $statement=$conn->prepare('UPDATE pointsofinterest SET recommended=recommended+1 WHERE ID=?');
         $statement->execute([$post['ID']]);
-        $results=$statement->fetchAll(PDO::FETCH_ASSOC);
-    } else {
-        $statement=$conn->prepare('SELECT * FROM pointsofinterest ORDER BY recommended DESC');
-        $statement->execute();
-        $results=$statement->fetchAll(PDO::FETCH_ASSOC);
+        if (isset($_SESSION['pageID'])) {
+            $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE ID=?');
+            $statement->execute([$post['ID']]);
+            $results=$statement->fetchAll(PDO::FETCH_ASSOC);
+        } else {
+            $statement=$conn->prepare('SELECT * FROM pointsofinterest ORDER BY recommended DESC');
+            $statement->execute();
+            $results=$statement->fetchAll(PDO::FETCH_ASSOC);
+        }
+        return $res->withJson($results);
     }
-    return $res->withJson($results);
 });
 
 $app->get('/admin', function (Request $req, Response $res, array $args) use ($conn,$view) {
@@ -108,13 +111,6 @@ $app->post('/add_poi', function (Request $req, Response $res, array $args) use (
     $statement=$conn->prepare('INSERT INTO pointsofinterest (name,type,country,region,lon,lat,description,username) VALUES (?,?,?,?,?,?,?,?)');
     $statement->execute([$post['name'],$post['type'],$post['country'],$post['region'],$post['lon'],$post['lat'],$post['description'],$post['username']]);
     return $res->withHeader('Location', '/pointsofinterest');
-});
-
-$app->get('/view/{id}/review', function (Request $req, Response $res, array $args) use ($conn,$view) {
-    $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE ID=?');
-    $statement->execute([$args['id']]);
-    $res=$view->render($res, 'review_poi.phtml', ['results'=>$statement]);
-    return $res;
 });
 
 $app->post('/review_poi', function (Request $req, Response $res, array $args) use ($conn) {

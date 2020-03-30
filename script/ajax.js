@@ -46,12 +46,13 @@ function poiRequest(id){
     poi.addEventListener ('load', displayPoints);
     poi.open('GET','/pointsofinterest/view/' + id);
     poi.send();
+    getReview(id);
 }
 
-function getReview(){
+function getReview(id){
     var review = new XMLHttpRequest();
     review.addEventListener('load', displayReviews);
-    review.open('GET', '/pointsofinterest/get_review');
+    review.open('GET', '/pointsofinterest/review/' + id);
     review.send();
 }
 
@@ -88,14 +89,13 @@ function displayPoints(e){
         '<td>' + poiData[i].lon + '</td>' +
         '<td>' + poiData[i].lat + '</td>' +
         '<td>' + poiData[i].description + '</td>' +
-        '<td><input type="submit" id="link" onclick="recommend(' + poiData[i].ID + ')" value="👍 ' + poiData[i].recommended + ' "/></td>' +
+        '<td><input type="submit" id="link" class="center" onclick="recommend(' + poiData[i].ID + ')" value="👍 ' + poiData[i].recommended + ' "/></td>' +
         '<td>' + poiData[i].username + '</td></tr>';
     }
 
     results = results + '</table>';
 
     document.getElementById('searchresults').innerHTML = results;
-    getReview();
 }
 
 function displayReviews(f) {
