@@ -39,33 +39,34 @@ $app->get('/get_poi', function (Request $req, Response $res, array $args) use ($
     $statement=$conn->prepare('SELECT * FROM pointsofinterest ORDER BY recommended DESC');
     $statement->execute();
     $results=$statement->fetchAll(PDO::FETCH_ASSOC);
-    //$res=$view->render($res, 'get_poi.phtml', ['results'=>$statement]);
     return $res->withJson($results);
 });
 
 $app->get('/get_review', function (Request $req, Response $res, array $args) use ($conn,$view) {
     $reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE approved=1');
     $reviews->execute();
-    $res=$view->render($res, 'get_review.phtml', ['reviews'=>$reviews]);
-    return $res;
+    $results=$reviews->fetchAll(PDO::FETCH_ASSOC);
+    //$res=$view->render($res, 'get_review.phtml', ['reviews'=>$reviews]);
+    return $res->withJson($results);
 });
 
 $app->get('/region/{region}', function (Request $req, Response $res, array $args) use ($conn,$view) {
     unset($_SESSION['pageID']);
     $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE region=? ORDER BY recommended DESC');
     $statement->execute([$args['region']]);
-    $res=$view->render($res, 'get_poi.phtml', ['results'=>$statement]);
-    return $res;
+    $results=$statement->fetchAll(PDO::FETCH_ASSOC);
+    return $res->withJson($results);
 });
 
 $app->get('/view/{id}', function (Request $req, Response $res, array $args) use ($conn,$view) {
     $_SESSION['pageID']=$args['id'];
-    $reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE approved=1 ORDER BY approved ASC');
-    $reviews->execute();
+    //$reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE approved=1 ORDER BY approved ASC');
+    //$reviews->execute();
     $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE ID=? ORDER BY recommended DESC');
     $statement->execute([$args['id']]);
-    $res=$view->render($res, 'get_poi.phtml', ['results'=>$statement, 'reviews'=>$reviews]);
-    return $res;
+    $results=$statement->fetchAll(PDO::FETCH_ASSOC);
+    //$res=$view->render($res, 'get_poi.phtml', ['results'=>$statement, 'reviews'=>$reviews]);
+    return $res->withJson($results);
 });
 
 $app->get('/admin', function (Request $req, Response $res, array $args) use ($conn,$view) {

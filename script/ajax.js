@@ -1,6 +1,6 @@
 function getPoi(){
     var results = new XMLHttpRequest();
-    results.addEventListener('load', responseReceived);
+    results.addEventListener('load', displayPoints);
     results.open('GET', '/pointsofinterest/get_poi');
     results.send();
 }
@@ -15,15 +15,23 @@ function regionRequest(){
 
     // Specify the CALLBACK function.
     // When we get a response from the server, the callback function will run
-    regions.addEventListener('load', responseReceived);
+    regions.addEventListener('load', displayPoints);
 
     // Open the connection to the server
     // We are sending a request to "flights.php" in the same folder and passing in the destination and
     // date as a query string.
-    regions.open('GET', `/pointsofinterest/region/${region}`);
+    regions.open('GET', '/pointsofinterest/region/' + region);
 
     // Send the request.
     regions.send();
+}
+
+
+function poiRequest(id){
+    var poi = new XMLHttpRequest();
+    poi.addEventListener ('load', displayPoints);
+    poi.open('GET','/pointsofinterest/view/' + id);
+    poi.send();
 }
 
 function getReview(){
@@ -36,7 +44,7 @@ function getReview(){
 // The callback function simply places the response from the server in the div with the ID of 'response'.
 // The parameter "e" contains the original XMLHttpRequest variable as "e.target".
 // We get the actual response from the server as "e.target.responseText"
-function responseReceived(e){
+function displayPoints(e){
     // Parse the JSON into an array of JavaScript objects
     var poiData = JSON.parse(e.target.responseText);
 
@@ -59,14 +67,14 @@ function responseReceived(e){
     // poiData[i].arrive, etc.
     for (var i = 0; i < poiData.length; i++) {
         results = results + '<tr><td>' + poiData[i].ID + '</td>' +
-        '<td>' + poiData[i].name + '</td>' +
+        '<td><input type="submit" id="link" value="' + poiData[i].name + '" onclick="poiRequest(' + poiData[i].ID + ')"></td>' +
         '<td>' + poiData[i].type + '</td>' +
         '<td>' + poiData[i].country + '</td>' +
         '<td>' + poiData[i].region + '</td>' +
         '<td>' + poiData[i].lon + '</td>' +
         '<td>' + poiData[i].lat + '</td>' +
         '<td>' + poiData[i].description + '</td>' +
-        '<td>' + poiData[i].recommend + '</td>' +
+        '<td>' + poiData[i].recommended + '</td>' +
         '<td>' + poiData[i].username + '</td></tr>';
     }
 
@@ -77,7 +85,13 @@ function responseReceived(e){
 }
 
 function displayReviews(f) {
-    document.getElementById('reviews').innerHTML = f.target.responseText;
+    var reviewData = JSON.parse(f.target.responseText);
+    var results = '<table><tr><th>Review</th></tr>';
+    for (var i = 0; i < reviewData.length; i++) {
+        results = results + '<tr><td>' + reviewData[i].review + '</td></tr>';
+    }
+    results = results + '</table>';
+    document.getElementById('reviews').innerHTML = results;
 }
 
 window.onload = function () {
