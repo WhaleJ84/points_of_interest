@@ -113,12 +113,11 @@ $app->post('/add_poi', function (Request $req, Response $res, array $args) use (
     return $res->withHeader('Location', '/~assign225');
 });
 
-$app->post('/review_poi', function (Request $req, Response $res, array $args) use ($conn) {
+$app->post('/add_review', function (Request $req, Response $res, array $args) use ($conn) {
     $post=$req->getParsedBody();
-    $ID=$post['poi_id'];
     $statement=$conn->prepare('INSERT INTO poi_reviews (poi_id,review) VALUES (?,?)');
-    $statement->execute([$ID,$post['review']]);
-    return $res->withHeader('Location', "/~assign225/view/$ID");
+    $statement->execute([$post['poi_id'],$post['review']]);
+    return $res->withHeader('Location', "/~assign225");
 });
 
 // User account pages

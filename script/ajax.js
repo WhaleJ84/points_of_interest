@@ -5,6 +5,7 @@ function getPoi(){
     results.send();
 }
 
+// used inside displayPoints()
 function recommend(id){
     var request = new XMLHttpRequest();
     request.addEventListener ('load', displayPoints);
@@ -56,6 +57,25 @@ function getReview(id){
     review.send();
 }
 
+// used inside displayReviews()
+function submitReview(){
+    var xhr2 = new XMLHttpRequest();
+    var poi_id = document.getElementById('poi_id').value;
+    var review = document.getElementById('review').value;
+    console.log('id: "' + poi_id + '" review: "' + review + '"');
+    xhr2.addEventListener('load', displayReviews);
+    xhr2.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            displayPoints;
+        }
+    };
+    xhr2.open('POST', '/~assign225/add_review', true);
+    var params = 'poi_id=' + poi_id;
+    params = params + 'review' + review;
+    // disabled until poi_id is solved
+    //xhr2.send(params);
+}
+
 // The callback function simply places the response from the server in the div with the ID of 'response'.
 // The parameter "e" contains the original XMLHttpRequest variable as "e.target".
 // We get the actual response from the server as "e.target.responseText"
@@ -100,7 +120,8 @@ function displayPoints(e){
 
 function displayReviews(f) {
     var reviewData = JSON.parse(f.target.responseText);
-    var results = '<table><tr><th>Review</th></tr>';
+    // need to find way to grab current poi_id. maybe through $_SESSION['pageID']?
+    var results = '<br/><nav></nav><br/><table><tr><th>Review</th></tr><tr><td><input type="hidden" name="poi_id" class="poi_id" value="' + poi_id + '"/><textarea id="review" placeholder="Enter a review" required></textarea></td></tr><tr><td class="center"><input type="submit" id="link" value="Submit " onclick="submitReview()"/></td></tr>';
     for (var i = 0; i < reviewData.length; i++) {
         results = results + '<tr><td>' + reviewData[i].review + '</td></tr>';
     }

@@ -23,7 +23,7 @@ include('functions.php');
                     <tr>
                         <td><label for='type'>Type: </label></td>
                         <td><select name='type'>
-<?
+<?php
 $types=array("Hotel","City","Historical Site","Bar","Restaurant","Beach","Mountain","Hill","Industrial Estate","Lost City","Moor","Port","Town","Village");
 foreach ($types as $type){
     echo "<option value='$type'>$type</option>";
@@ -34,7 +34,7 @@ echo "</td>";
                     <tr>
                         <td><label for='country'>Country: </label></td>
                         <td><select name='country'>
-<?
+<?php
 $countries=file('countries');
 foreach ($countries as $country){
     echo "<option value='$country'>$country</option>";
@@ -59,7 +59,7 @@ echo "</td>";
                         <td><input name='description' type='text' required/></td>
                     </tr>
                     <tr>
-                        <td><input type='hidden' id='username' name='username' value='<?=$_SESSION['gatekeeper'];?>'/></td>
+                        <td><input type='hidden' id='username' name='username' value='<?php echo $_SESSION['gatekeeper']?>'/></td>
                         <td><input name='submit' type='submit'/></td>
                     </tr>
                 </form>

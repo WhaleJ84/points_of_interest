@@ -21,8 +21,8 @@ include('functions.php');
                         <td><textarea name='review' required></textarea></td>
                     </tr>
                     <tr>
-<?$row=$results->fetch(PDO::FETCH_ASSOC)?>
-                        <td><input type='hidden' name='poi_id' value='<?=$row['ID']?>'/></td>
+<?php $row=$results->fetch(PDO::FETCH_ASSOC)?>
+                        <td><input type='hidden' name='poi_id' value='<?php echo $row['ID']?>'/></td>
                         <td><input type='submit'/></td>
                     </tr>
                 </form>

@@ -16,12 +16,13 @@ include('functions.php');
             </header>
             <div id='main'>
                 <nav>
-                    <?poi_options(@$_SESSION['pageID']);?>
+                    <?php poi_options(@$_SESSION['pageID']);?>
+                </nav><br style='clear:both'/>
                 <label>Search within region: </label>
                 <select name='region' id='region'/>
-<?while ($row=$regions->fetch(PDO::FETCH_ASSOC)){?>
-    <option value='<?echo $row['region']?>'><?echo $row['region']?></option>
-<?}?>
+<?php while ($row=$regions->fetch(PDO::FETCH_ASSOC)){?>
+    <option value='<?php echo $row['region']?>'><?php echo $row['region']?></option>
+<?php }?>
                 <input type='submit' id='regionButton' value='Search'/>
                 <div id='searchresults'></div>
                 <div id='reviews'></div>
