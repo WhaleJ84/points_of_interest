@@ -41,7 +41,7 @@ function regionRequest(){
     regions.send();
 }
 
-
+// used inside displayPoints()
 function poiRequest(id){
     var poi = new XMLHttpRequest();
     poi.addEventListener ('load', displayPoints);
@@ -58,11 +58,10 @@ function getReview(id){
 }
 
 // used inside displayReviews()
-function submitReview(){
+function submitReview(id){
     var xhr2 = new XMLHttpRequest();
-    var poi_id = document.getElementById('poi_id').value;
+    var poi_id = id;
     var review = document.getElementById('review').value;
-    console.log('id: "' + poi_id + '" review: "' + review + '"');
     xhr2.addEventListener('load', displayReviews);
     xhr2.onreadystatechange = function() {
         if (this.readyState === 4 && this.status === 200) {
@@ -70,10 +69,11 @@ function submitReview(){
         }
     };
     xhr2.open('POST', '/~assign225/add_review', true);
-    var params = 'poi_id=' + poi_id;
-    params = params + 'review' + review;
+    var params = 'poi_id="' + poi_id + '"&';
+    params = params + 'review="' + review + '"';
+    console.log(params);
     // disabled until poi_id is solved
-    //xhr2.send(params);
+    xhr2.send(params);
 }
 
 // The callback function simply places the response from the server in the div with the ID of 'response'.
@@ -101,6 +101,8 @@ function displayPoints(e){
     // We can then extract the individual fields with poiData[i].depart,
     // poiData[i].arrive, etc.
     for (var i = 0; i < poiData.length; i++) {
+        document.cookie = 'poi_id=' + poiData[0].ID + '; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+        document.cookie = 'poi_id=' + poiData[0].ID;
         results = results + '<tr><td>' + poiData[i].ID + '</td>' +
         '<td><input type="submit" id="link" value="' + poiData[i].name + ' " onclick="poiRequest(' + poiData[i].ID + ')"></td>' +
         '<td>' + poiData[i].type + '</td>' +
@@ -119,9 +121,10 @@ function displayPoints(e){
 }
 
 function displayReviews(f) {
+    var cookie = document.cookie.split(';');
+    var id = cookie[0];
     var reviewData = JSON.parse(f.target.responseText);
-    // need to find way to grab current poi_id. maybe through $_SESSION['pageID']?
-    var results = '<br/><nav></nav><br/><table><tr><th>Review</th></tr><tr><td><input type="hidden" name="poi_id" class="poi_id" value="' + poi_id + '"/><textarea id="review" placeholder="Enter a review" required></textarea></td></tr><tr><td class="center"><input type="submit" id="link" value="Submit " onclick="submitReview()"/></td></tr>';
+    var results = '<br/><nav></nav><br/><table><tr><th>Review</th></tr><tr><td><textarea id="review" placeholder="Enter a review" required></textarea></td></tr><tr><td class="center"><input type="submit" id="link" value="Submit " onclick="submitReview(' + id + ')"/></td></tr>';
     for (var i = 0; i < reviewData.length; i++) {
         results = results + '<tr><td>' + reviewData[i].review + '</td></tr>';
     }

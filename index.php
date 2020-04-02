@@ -32,7 +32,7 @@ $app->get('/', function (Request $req, Response $res, array $args) use ($conn,$v
     $regions->execute();
     $res=$view->render($res, 'points_of_interest.phtml', ['regions'=>$regions]);
     return $res;
-});
+})->setName('root');
 
 $app->get('/get_poi', function (Request $req, Response $res, array $args) use ($conn,$view) {
     unset($_SESSION['pageID']);
@@ -60,6 +60,8 @@ $app->get('/region/{region}', function (Request $req, Response $res, array $args
 $app->get('/view/{id}', function (Request $req, Response $res, array $args) use ($conn,$view) {
     unset($_SESSION['pageID']);
     $_SESSION['pageID']=$args['id'];
+    //header('Content-Type: application/json');
+    //$cookie=json_encode(array(pageID => $args['id']));
     $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE ID=?');
     $statement->execute([$args['id']]);
     $results=$statement->fetchAll(PDO::FETCH_ASSOC);
@@ -85,9 +87,10 @@ $app->post('/recommend', function (Request $req, Response $res, array $args) use
 });
 
 $app->get('/admin', function (Request $req, Response $res, array $args) use ($conn,$view) {
-    if (!isset($_SESSION['isadmin'])) {
-        return $res->withHeader('Location', '/~assign225');
-    }
+    //if (!isset($_SESSION['isadmin'])) {
+        ////return $res->withHeader('Location', '/~assign225');
+        //return $res->urlFor('root');
+    //}
     $reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE approved=0 ORDER BY approved ASC');
     $reviews->execute();
     $res=$view->render($res, 'admin.phtml', ['reviews'=>$reviews]);
@@ -115,9 +118,11 @@ $app->post('/add_poi', function (Request $req, Response $res, array $args) use (
 
 $app->post('/add_review', function (Request $req, Response $res, array $args) use ($conn) {
     $post=$req->getParsedBody();
-    $statement=$conn->prepare('INSERT INTO poi_reviews (poi_id,review) VALUES (?,?)');
-    $statement->execute([$post['poi_id'],$post['review']]);
-    return $res->withHeader('Location', "/~assign225");
+    print_r($post['poi_id']);
+    //$statement=$conn->prepare('INSERT INTO poi_reviews (poi_id,review) VALUES (?,?)');
+    //$statement->execute([$post['poi_id'],$post['review']]);
+    //return $res->withHeader('Location', "/~assign225");
+    return $res;
 });
 
 // User account pages
