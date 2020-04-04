@@ -43,8 +43,13 @@ $app->get('/get_poi', function (Request $req, Response $res, array $args) use ($
 });
 
 $app->get('/review/{id}', function (Request $req, Response $res, array $args) use ($conn,$view) {
-    $reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE poi_id=? AND approved=1');
-    $reviews->execute([$args['id']]);
+    if (isset($_SESSION['isadmin'])){
+        $reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE poi_id=?');
+        $reviews->execute([$args['id']]);
+    } else {
+        $reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE poi_id=? AND approved=1');
+        $reviews->execute([$args['id']]);
+    }
     $results=$reviews->fetchAll(PDO::FETCH_ASSOC);
     return $res->withJson($results);
 });
@@ -114,16 +119,20 @@ $app->get('/add', function (Request $req, Response $res, array $args) use ($view
 });
 
 $app->post('/add_poi', function (Request $req, Response $res, array $args) use ($conn) {
-    $post=$req->getParsedBody();
-    $statement=$conn->prepare('INSERT INTO pointsofinterest (name,type,country,region,lon,lat,description,username) VALUES (?,?,?,?,?,?,?,?)');
-    $statement->execute([$post['name'],$post['type'],$post['country'],$post['region'],$post['lon'],$post['lat'],$post['description'],$post['username']]);
+    if (isset($_SESSION['gatekeeper'])){
+        $post=$req->getParsedBody();
+        $statement=$conn->prepare('INSERT INTO pointsofinterest (name,type,country,region,lon,lat,description,username) VALUES (?,?,?,?,?,?,?,?)');
+        $statement->execute([$post['name'],$post['type'],$post['country'],$post['region'],$post['lon'],$post['lat'],$post['description'],$post['username']]);
+    }
     return $res->withHeader('Location', '/~assign225');
 });
 
 $app->post('/add_review/{id}', function (Request $req, Response $res, array $args) use ($conn) {
-    $post=$req->getParsedBody();
-    $statement=$conn->prepare('INSERT INTO poi_reviews (poi_id,review) VALUES (?,?)');
-    $statement->execute([$args['id'],$post['review']]);
+    if (isset($_SESSION['gatekeeper'])){
+        $post=$req->getParsedBody();
+        $statement=$conn->prepare('INSERT INTO poi_reviews (poi_id,review) VALUES (?,?)');
+        $statement->execute([$args['id'],$post['review']]);
+    }
     $reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE poi_id=? AND approved=1');
     $reviews->execute([$args['id']]);
     $results=$reviews->fetchAll(PDO::FETCH_ASSOC);
@@ -144,8 +153,10 @@ $app->post('/login', function (Request $req, Response $res, array $args) use ($c
     $_SESSION['gatekeeper']=$row['username'];
     if ($row['isadmin'] == 1) {
         $_SESSION['isadmin']=1;
+        return $res->withHeader('Location', '/~assign225/admin');
+    } else {
+        return $res->withHeader('Location', '/~assign225');
     }
-    return $res->withHeader('Location', '/~assign225');
 });
 
 $app->get('/logout', function (Request $req, Response $res, array $args) {

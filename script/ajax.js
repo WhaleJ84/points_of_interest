@@ -71,7 +71,7 @@ function submitReview(id){
     xhr2.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     var params = 'review=' + review;
     xhr2.send(params);
-    alert('Review awaiting approval');
+    alert('Review are only accpeted from registered users.\nAll reviews must be approved by an administrator before being shown to the public.');
 }
 
 // The callback function simply places the response from the server in the div with the ID of 'response'.
