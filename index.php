@@ -83,14 +83,18 @@ $app->post('/recommend', function (Request $req, Response $res, array $args) use
             $results=$statement->fetchAll(PDO::FETCH_ASSOC);
         }
         return $res->withJson($results);
+    } else {
+        $statement=$conn->prepare('SELECT * FROM pointsofinterest ORDER BY recommended DESC');
+        $statement->execute();
+        $results=$statement->fetchAll(PDO::FETCH_ASSOC);
+        return $res->withJson($results);
     }
 });
 
 $app->get('/admin', function (Request $req, Response $res, array $args) use ($conn,$view) {
-    //if (!isset($_SESSION['isadmin'])) {
-        ////return $res->withHeader('Location', '/~assign225');
-        //return $res->urlFor('root');
-    //}
+    if (!isset($_SESSION['isadmin'])) {
+        echo $routeParser->urlFor('root');
+    }
     $reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE approved=0 ORDER BY approved ASC');
     $reviews->execute();
     $res=$view->render($res, 'admin.phtml', ['reviews'=>$reviews]);
@@ -116,13 +120,14 @@ $app->post('/add_poi', function (Request $req, Response $res, array $args) use (
     return $res->withHeader('Location', '/~assign225');
 });
 
-$app->post('/add_review', function (Request $req, Response $res, array $args) use ($conn) {
+$app->post('/add_review/{id}', function (Request $req, Response $res, array $args) use ($conn) {
     $post=$req->getParsedBody();
-    print_r($post['poi_id']);
-    //$statement=$conn->prepare('INSERT INTO poi_reviews (poi_id,review) VALUES (?,?)');
-    //$statement->execute([$post['poi_id'],$post['review']]);
-    //return $res->withHeader('Location', "/~assign225");
-    return $res;
+    $statement=$conn->prepare('INSERT INTO poi_reviews (poi_id,review) VALUES (?,?)');
+    $statement->execute([$args['id'],$post['review']]);
+    $reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE poi_id=? AND approved=1');
+    $reviews->execute([$args['id']]);
+    $results=$reviews->fetchAll(PDO::FETCH_ASSOC);
+    return $res->withJson($results);
 });
 
 // User account pages

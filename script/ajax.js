@@ -60,7 +60,6 @@ function getReview(id){
 // used inside displayReviews()
 function submitReview(id){
     var xhr2 = new XMLHttpRequest();
-    var poi_id = id;
     var review = document.getElementById('review').value;
     xhr2.addEventListener('load', displayReviews);
     xhr2.onreadystatechange = function() {
@@ -68,12 +67,11 @@ function submitReview(id){
             displayPoints;
         }
     };
-    xhr2.open('POST', '/~assign225/add_review', true);
-    var params = 'poi_id="' + poi_id + '"&';
-    params = params + 'review="' + review + '"';
-    console.log(params);
-    // disabled until poi_id is solved
+    xhr2.open('POST', '/~assign225/add_review/' + id, true);
+    xhr2.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    var params = 'review=' + review;
     xhr2.send(params);
+    alert('Review awaiting approval');
 }
 
 // The callback function simply places the response from the server in the div with the ID of 'response'.
@@ -124,7 +122,7 @@ function displayReviews(f) {
     var cookie = document.cookie.split(';');
     var id = cookie[0];
     var reviewData = JSON.parse(f.target.responseText);
-    var results = '<br/><nav></nav><br/><table><tr><th>Review</th></tr><tr><td><textarea id="review" placeholder="Enter a review" required></textarea></td></tr><tr><td class="center"><input type="submit" id="link" value="Submit " onclick="submitReview(' + id + ')"/></td></tr>';
+    var results = '<br/><nav></nav><br/><table><tr><th>Reviews</th></tr><tr><td><textarea id="review" placeholder="Enter a review" required></textarea></td></tr><tr><td class="center"><input type="submit" id="reviewButton" value="Submit " onclick="submitReview(' + id + ')"/></td></tr>';
     for (var i = 0; i < reviewData.length; i++) {
         results = results + '<tr><td>' + reviewData[i].review + '</td></tr>';
     }

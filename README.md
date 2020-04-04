@@ -1,16 +1,28 @@
 # points\_of\_interest
 
-This documentation is written from scratch with the knowledge of Task H and as such, tasks prior to this point may seem more advanced than they should.
+This documentation is written from scratch with the knowledge of Task I and as such, tasks prior to this point may seem more advanced than they should.
 Where necessary, notes are made to redirect to the relevant entry to explain said design choices.
 
 ## Prerequisites
 ### index.php
 This file contains all the necessary code to function using the Slim framework (explained in further detail in task H).
 
-### points\_of\_interest.phtml
-Acting as the main page users land to when browsing for the site, `points_of_interest` acts as a traditional index page, hosting a table that contains the fields of select columns within the database entries (`.phtml` format explained in further detail in Task H).
+### views/points\_of\_interest.phtml
+At the top of the page is a snippet of PHP code: `include('functions.php')`, which imports custom functions defined within the file to be used within this page.
+
+Within the html head of the page is a link to the css stylesheet and a favicon for the browser tab - both of which are explained in further detail within Task E.
+Also contained within is the page title `PointsOfInterest` and a link to the `ajax.js` JavaScript file (AJAX explained in further detail in task I).
+
+Within the html body is the website title and a custom PHP function, `navbar` (Explained in further detail in `functions.php`).
+The above mentioned additions are included in all `view/*.phtml` files, and as such will be ommitted from any further discussion of included files.
+
+
+Acting as the main page users land to when browsing for the site, `points_of_interest` acts as a traditional home page, hosting a table that contains the fields of select columns within the database entries (`.phtml` format explained in further detail in Task H).
+
+The page contains two main areas that will be contained within html divs: `searchresults` and `reviews`.
+
 It connects to the `pointsofinterest` database, which contains the fields: `ID`, `name`, `type`, `country`, `region`, `lon`, `lat`, `description`, `recommended`, and `username`.
-Both `ID` and `username` are entries that do not need to be known to the user, so should be excluded from the table entries within the page.
+Both `ID` and `username` are entries that do not need to be known to the user, so could be excluded from the table entries within the page.
 
 The results will be grabbed from the `pointsofinterest` database using the query: `SELECT * FROM pointsofinterest` ~~ORDER BY recommended DESC~~ via `index.php` (latter half explained in further detail in Task C).
 
@@ -30,6 +42,9 @@ Contained within will be a form, prompting the user for a `username` and `passwo
 A user should be able to enter a region (e.g. Hampshire, Normandy or California); once they have entered the region, all POIs in that region should appear.
 Each search result should contain a hyperlink labelled "Recommend", which should link to task c) (see below).
 
+### views/points\_of\_interest.phtml
+A JSON array named `$regions` is sent to the view from `index.php` that contains all of the unique entries of regions within the `pointsofinterest` table using the query: `SELECT DISTINCT region FROM pointsofinterest`.
+
 ## C) Allow a user to recommend a POI
 For a basic pass, this should simply add one to the recommended column for that POI.
 [EXPLAIN REFERENCE FROM TASK A]
@@ -45,6 +60,8 @@ Please note that you should use standards-compliant HTML and CSS for this assign
 
 Your site must also be user-friendly (easy to navigate and use to the end-user). One example of maximising user-friendliness would be using drop-down lists rather than form fields where appropriate, and another would be to not require users to enter IDs or other quantities that might be unknown to the end-user. Navigation around the site should also be intuitive.. You must take these steps to achieve a B or above.
 For a Grade B, it is necessary in addition to…
+
+[EXPLAIN CSS AND FAVICON]
 
 ## F) Allow administrator to approve reviews
 As well as approving a review, an administrator must be able to see a list of all pending reviews.
