@@ -65,8 +65,6 @@ $app->get('/region/{region}', function (Request $req, Response $res, array $args
 $app->get('/view/{id}', function (Request $req, Response $res, array $args) use ($conn,$view) {
     unset($_SESSION['pageID']);
     $_SESSION['pageID']=$args['id'];
-    //header('Content-Type: application/json');
-    //$cookie=json_encode(array(pageID => $args['id']));
     $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE ID=?');
     $statement->execute([$args['id']]);
     $results=$statement->fetchAll(PDO::FETCH_ASSOC);
@@ -140,8 +138,8 @@ $app->post('/add_review/{id}', function (Request $req, Response $res, array $arg
 });
 
 // User account pages
-$app->get('/accounts', function (Request $req, Response $res, array $args) use ($view) {
-    $res=$view->render($res, '/accounts.phtml');
+$app->get('/accounts/{action}', function (Request $req, Response $res, array $args) use ($view) {
+    $res=$view->render($res, '/accounts.phtml', ['value'=>$args['action']]);
     return $res;
 });
 

@@ -1,7 +1,5 @@
 <?php
 include('functions.php');
-$action=strtolower($_GET['action']);
-$value=$_GET['action'];
 ?>
 <html>
     <head>
@@ -17,7 +15,7 @@ $value=$_GET['action'];
             </header>
             <div id='main'>
                 <table>
-                <form method='post' action='<?php echo "$action";?>'>
+                <form method='post' action='<?php echo "/~assign225/"; echo htmlentities("$value");?>'>
                     <tr>
                         <td><label for='username'>Username:</label></td>
                         <td><input name='username' id='username' type='text'/></td>
@@ -28,7 +26,7 @@ $value=$_GET['action'];
                     </tr>
                     <tr>
                         <td></td>
-                        <td><input name='action' type='submit' value='<?php echo "$value";?>'/></td>
+                        <td><input name='action' type='submit' value='<?php echo ucfirst("$value");?>'/></td>
                     </tr>
                 </form>
                 </table>
