@@ -35,7 +35,7 @@ In both functions, they loop through an array to set values that will be used wi
 
 ## A) Allow a registered user to add a new point of interest (POI)
 
-The user should provide the name, type (e.g. hotel, city, historical site, bar, restaurant, beach, mountain, etc), and a description. This should add a record to the pointsofinterest table, containing the information the user entered together with the username of the currently logged-in user.
+*The user should provide the name, type (e.g. hotel, city, historical site, bar, restaurant, beach, mountain, etc), and a description. This should add a record to the pointsofinterest table, containing the information the user entered together with the username of the currently logged-in user.*
 
 ### views/accounts.phtml
 
@@ -75,8 +75,8 @@ As there are only a certain number of countries available in the world and new o
 
 ## B) Allow a user to search for a POI by region
 
-A user should be able to enter a region (e.g. Hampshire, Normandy or California); once they have entered the region, all POIs in that region should appear.
-Each search result should contain a hyperlink labelled "Recommend", which should link to task c) (see below).
+*A user should be able to enter a region (e.g. Hampshire, Normandy or California); once they have entered the region, all POIs in that region should appear.
+Each search result should contain a hyperlink labelled "Recommend", which should link to task c) (see below).*
 
 ### views/points\_of\_interest.phtml
 
@@ -85,6 +85,7 @@ Once the user has selected their region from the menu, the submit button has a J
 After the query results have returned from `index.php`, the JSON output is parsed by `ajax.json` and display witin the `searchresults` div within `points_of_interest.phtml` as it is for searches.
 
 ### script/ajax.js
+
 In short `regionRequest` assigns the value from the drop-down menu to the variable `region` via `document.getElementById('region').value` and then sends the value to `index.php` with a GET request to `/region/{region}` and displays the returned JSON results inside the `searchresults` HTML div in `points_of_interest.phtml` in a formatted way via the function `displayPoints`.
 
 `displayPoints` stores the parsed JSON data in the variable `poiData` and creates a variable `results` that contains a default HTML table with the rows and headers required for the `pointsofinterest` table and appends the data inside `poiData` to the `results` varibale by adding new rows and data entries containing the relevant data provided via a for loop iterating through the `poiData` array.
@@ -102,12 +103,16 @@ It saves the statement to the variable `$results` and returns it in JSON format,
 
 ## C) Allow a user to recommend a POI
 
-For a basic pass, this should simply add one to the recommended column for that POI.
+*For a basic pass, this should simply add one to the recommended column for that POI.*
 
-### ajax.json
+### script/ajax.json
+
+Once the user has clicked the recommend button displayed via `displayPoints` (explained in Task B), it runs `recommend(id)` which adds a listener to `displayPoints` to display the results once returned and checks it can make a connection to `index.php` via `onreadystatechange` before proceeding.
+On success, the function saves the id that was passed into the function to a a variable `params` in a POST data format and sends it to `/recommend`.
 
 
 ### index.php
+
 `/recommend` checks if the user is logged in, returning with the query to display the same page they were on without updating the recommendations if they're not.
 If they are logged in, it updates the POI with the query `UPDATE pointsofinterest SET recommended=recommended+1 WHERE ID=$post['ID']`.
 It then checks if `$_SESSION['pageID']` is set (which is set when the user has selected an individual POI to view, and unset everywhere else relevant within `index.php`) and runs `SELECT * FROM pointsofinterest WHERE ID=$post['ID']` if it is.
@@ -115,39 +120,73 @@ If `$_SESSION['pageID']` is not set, it runs `SELECT * FROM pointsofinterest ORD
 
 ## D) Allow a user to view all reviews for a given POI
 
-A user should be able to select a place of interest from their search results; this will display all reviews for that place of interest. If you are not intending to complete task e), you may test this by adding reviews to the database via phpMyAdmin.
+*A user should be able to select a place of interest from their search results; this will display all reviews for that place of interest. If you are not intending to complete task e), you may test this by adding reviews to the database via phpMyAdmin.*
+
+### ajax.js
+
+As explained in Task B, all POIs displayed to the user have their named displayed as a submit button that runs `poiRequest(id)` on click.
+This sends a request to `/view/{id}` and displays the results in the `searchresults` HTML div but then runs `getReview(id)`.
+
+`getReview(id)` works similarly to `poiRequest` but adds `displayReviews` as it's event listener instead and sends the results from `/review/{id}` to it.
+
+`displayReviews` does the same as `displayPoints` but instead creates a table to display the reviews available in the database for the POI and entries for the user to submit their own review (explained in further detail in Task E) and displays it within the `reviews` HTML div.
+
+### index.php
+
+`/view/{id}` sets the variable `$_SESSION['pageID']` to `$args['id']` which is used for checks within other functions to determine if a user is viewing a particular POI or not within the AJAX responses.
+It then runs `SELECT * FROM pointsofinterest WHERE ID=$args['id']` and sends it back to `ajax.js`.
+
+`/review/{id}` checks if `$_SESSION['isadmin']` is set and displays every relevant review with `SELECT * FROM poi_reviews WHERE poi_id=$args['id'] AND approved=1` if the user is not an admin, displaying every review if they are (explained in further detail in Task F).
 
 ## E) Allow a user to review a POI
 
-This must add an appropriate record to the reviews table. Ignore the approved column for now.
-To achieve a Grade C, you must, in addition, ensure that you guard against SQL injection and cross-site scripting, must have no broken links, and implement a basic CSS stylesheet including custom layout and colour scheme (see below).
+*This must add an appropriate record to the reviews table. Ignore the approved column for now.*
 
-Please note that you should use standards-compliant HTML and CSS for this assignment, and ensure that you include basic custom CSS (a basic custom layout and custom colour scheme). Your CSS must be written as an external stylesheet. You must do this to achieve a C or above. Also to achieve a C or above, there must be no broken links.
+### script/ajax.js
 
-Your site must also be user-friendly (easy to navigate and use to the end-user). One example of maximising user-friendliness would be using drop-down lists rather than form fields where appropriate, and another would be to not require users to enter IDs or other quantities that might be unknown to the end-user. Navigation around the site should also be intuitive.. You must take these steps to achieve a B or above.
-For a Grade B, it is necessary in addition to…
+As stated briefly in Task D, `displayReviews` appends a textarea and submit button above the reviews in the database, with the submit button running `submitReview(id)` upon click.
+`submitReview` saves the content from the textarea to a variable `review` and sends it as a POST request to `/add_review/{id}` similar to `recommend(id)` (explained in Task C) before informing the user that all reviews must be submitted by logged in users and approved by an administrator via a JavaScript alert.
+After the review has been submitted the page is essentially refreshed with the same AJAX functions as stated before to prevent the entire page from being reloaded.
 
-[EXPLAIN CSS AND FAVICON]
+### index.php
+
+`/add_review/{id}` checks if the user is logged in via `$_SESSION['gatekeeper']` and processes their request if they are via `INSERT INTO poi_reviews (poi_id, review) VALUES ($args['id'], $post['review'])`.
+Regardless if the user is logged in or not, it then runs `SELECT * FROM poi_reviews WHERE poi_id=$args['id'] AND approved=1` before sending it back to `ajax.js` as explained above.
+
+*To achieve a Grade C, you must, in addition, ensure that you guard against SQL injection and cross-site scripting, must have no broken links, and implement a basic CSS stylesheet including custom layout and colour scheme (see below).*
+*Please note that you should use standards-compliant HTML and CSS for this assignment, and ensure that you include basic custom CSS (a basic custom layout and custom colour scheme). Your CSS must be written as an external stylesheet. You must do this to achieve a C or above. Also to achieve a C or above, there must be no broken links.*
+
+To prevent against SQL injection, all SQL queries are executed as prepared statements within `index.php`.
+`views/accounts.phtml` HTML encodes the value passed to it with `htmlentities("$value")` to prevent the user from passing bad values to it via an XSS attack and HTML forms are provided regex patterns to prevent them from being submitted.
+
+All links are dynamically generated via `functions.php` and `ajax.js` to prevent having to manually find and update links every time a page changes.
+As all pages are displayed via Slim views, there are only 4 views in total, each containing a css link to `style/main.css` and a favicon at `images/favicon.png` to make the pages clearer to see and more appealing to users.
+The CSS file includes a set of colours across the entire site to add consistency.
+
+*Your site must also be user-friendly (easy to navigate and use to the end-user). One example of maximising user-friendliness would be using drop-down lists rather than form fields where appropriate, and another would be to not require users to enter IDs or other quantities that might be unknown to the end-user. Navigation around the site should also be intuitive.. You must take these steps to achieve a B or above.*
+
+The site also provides drop-down menus where possible (selecting region, submitting a new POI) and names all inputs with placeholders where appropriate (longitude and latitude).
+All POI viewing related actions are performed using AJAX requests, meaning the user doesn't have to navigate round the site much if at all and all links are clearly defined via their CSS styling.
 
 ## F) Allow administrator to approve reviews
 
-As well as approving a review, an administrator must be able to see a list of all pending reviews.
-To achieve a Grade B, you must, in addition, ensure that your site is user-friendly (see below).
+*As well as approving a review, an administrator must be able to see a list of all pending reviews.
+To achieve a Grade B, you must, in addition, ensure that your site is user-friendly (see below).*
 
 ## G) Implement the majority of your scripts using object-oriented PHP
 
-You should include some use of Data Access Objects (DAOs) in your code. It is not necessary to use Slim to complete this task.
-Task h) - must be implemented in full for an A2. For an A3, it must be mostly functional but there may be a small number of omissions.
+*You should include some use of Data Access Objects (DAOs) in your code. It is not necessary to use Slim to complete this task.
+Task h) - must be implemented in full for an A2. For an A3, it must be mostly functional but there may be a small number of omissions.*
 
 ## H) Implement the search and review functionality using Slim and AJAX.
 
-The "search for a POI by region" functionality must be implemented as a Slim endpoint, and you must include an AJAX front end which reads the user's search term, sends it to your Slim endpoint, and displays the search results to the user in a user-friendly, readable, well-formatted way.
+*The "search for a POI by region" functionality must be implemented as a Slim endpoint, and you must include an AJAX front end which reads the user's search term, sends it to your Slim endpoint, and displays the search results to the user in a user-friendly, readable, well-formatted way.
 The "review" functionality must also be implemented as a Slim endpoint.
-It should receive the POI ID and the review as POST data. It should check that the ID and the review are valid.
+It should receive the POI ID and the review as POST data. It should check that the ID and the review are valid.*
 
-Implement an AJAX review facility as follows. Each search result from your AJAX search - task h) - should include a text box (to allow the user to enter a review) and a "Review" button. When the user clicks the Review button, an AJAX POST request should be sent to your Slim "review" endpoint. When the review has been added, a confirmation message must be displayed to the user, or an error message if the ID and/or review were not valid.
+*Implement an AJAX review facility as follows. Each search result from your AJAX search - task h) - should include a text box (to allow the user to enter a review) and a "Review" button. When the user clicks the Review button, an AJAX POST request should be sent to your Slim "review" endpoint. When the review has been added, a confirmation message must be displayed to the user, or an error message if the ID and/or review were not valid.*
 [EXPLAIN REFERENCE FROM TASK A]
 
 ## I) Implement your search facility as a JSON web service and alter your AJAX front end to connect to this JSON web service
 
-Search results must continue to be displayed in a user-friendly, readable, well-formatted way.
+*Search results must continue to be displayed in a user-friendly, readable, well-formatted way.*
