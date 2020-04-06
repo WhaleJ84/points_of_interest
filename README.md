@@ -21,8 +21,6 @@ Also contained within is the page title `PointsOfInterest` and a link to the `aj
 Within the html body is the website title and a custom PHP function, `navbar` (explained in further detail in `functions.php`).
 The above mentioned additions are included in all `view/*.phtml` files, and as such will be ommitted from any further discussion of included files.
 
-Below is a drop-down menu, dynamically generated using a PHP while loop on an SQL query passed through from `index.php` that allows the user to filter search results by regions (explained in further detail in Task B).
-
 Finally, the page contains two HTML divs: `searchresults` and `reviews` that will be populated with AJAX responses to display results to the user.
 
 ### functions.php
@@ -72,7 +70,7 @@ As `poi_options` and `index.php` prevent and redirect the user from this page wi
 
 ### countries
 
-A simple file that contains every country available on a single line to be read in by `views/add\_poi.phtml` into a variable.
+A simple file that contains every country available on a single line to be read in by `views/add_poi.phtml` into a variable.
 As there are only a certain number of countries available in the world and new ones don't tend to pop up often, this seems like a better option than letting the user manually input a country.
 
 ## B) Allow a user to search for a POI by region
@@ -82,12 +80,38 @@ Each search result should contain a hyperlink labelled "Recommend", which should
 
 ### views/points\_of\_interest.phtml
 
-A JSON array named `$regions` is sent to the view from `index.php` that contains all of the unique entries of regions within the `pointsofinterest` table using the query: `SELECT DISTINCT region FROM pointsofinterest`.
+Contains a drop-down menu with a CSS id of `region`, dynamically generated using a PHP while loop from a JSON array named `$regions` sent from `index.php` that contains all of the unique entries of regions within the `pointsofinterest` table.
+Once the user has selected their region from the menu, the submit button has a JavaScript function listening for the submission to run `regionRequest` in `ajax.json`
+After the query results have returned from `index.php`, the JSON output is parsed by `ajax.json` and display witin the `searchresults` div within `points_of_interest.phtml` as it is for searches.
+
+### script/ajax.js
+In short `regionRequest` assigns the value from the drop-down menu to the variable `region` via `document.getElementById('region').value` and then sends the value to `index.php` with a GET request to `/region/{region}` and displays the returned JSON results inside the `searchresults` HTML div in `points_of_interest.phtml` in a formatted way via the function `displayPoints`.
+
+`displayPoints` stores the parsed JSON data in the variable `poiData` and creates a variable `results` that contains a default HTML table with the rows and headers required for the `pointsofinterest` table and appends the data inside `poiData` to the `results` varibale by adding new rows and data entries containing the relevant data provided via a for loop iterating through the `poiData` array.
+The `name` entry is displayed as an submit button with the the JavaScript running `poiRequest(ID)` on click to allow the user to view individual points and their revuews (explained in further detail in Task D).
+The `recommend` entry is also a submit button that runs `recommend(ID)` on click (explained in further detail in Task C) and is displyed with a 'thumbs up' emoji, which in modern web design is associated with approving something.
+
+The majority of this file is explained in further detail in Task I
+
+### index.php
+
+To prevent a user from trying to search for a region that doesn't exist within the database, before the `points_of_interest.phtml` view is loaded, the query `SELECT DISTINCT region FROM pointsofinterest` is saved to `$regions` and passed into the view to be loaded into the drop-down menu.
+
+Once the user has chose their desired region, it is submitted to `/region/{region}` where the argument is their choice where it runs `SELECT * FROM pointsofinterest WHERE region=$args['region'] ORDER BY recommended DESC` (order by query explained in further detail in Task C).
+It saves the statement to the variable `$results` and returns it in JSON format, as all search result and reviews are (explained in further detail in Task I).
 
 ## C) Allow a user to recommend a POI
 
 For a basic pass, this should simply add one to the recommended column for that POI.
-[EXPLAIN REFERENCE FROM TASK A]
+
+### ajax.json
+
+
+### index.php
+`/recommend` checks if the user is logged in, returning with the query to display the same page they were on without updating the recommendations if they're not.
+If they are logged in, it updates the POI with the query `UPDATE pointsofinterest SET recommended=recommended+1 WHERE ID=$post['ID']`.
+It then checks if `$_SESSION['pageID']` is set (which is set when the user has selected an individual POI to view, and unset everywhere else relevant within `index.php`) and runs `SELECT * FROM pointsofinterest WHERE ID=$post['ID']` if it is.
+If `$_SESSION['pageID']` is not set, it runs `SELECT * FROM pointsofinterest ORDER BY recommended DESC`, using the order by feature to make higher recommended POIs appear higher in the search results, giving recommendations some meaning.
 
 ## D) Allow a user to view all reviews for a given POI
 
