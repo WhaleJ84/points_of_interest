@@ -29,10 +29,8 @@ function poi_options()
     if (!isset($_SESSION['gatekeeper'])) {
         echo '<p>Please login to get further functionality.</p>';
     } else {
-        $name = 'Add';
-        $link = '/~assign225/add';
-        $navbar=[ "$name"=>"$link",
-            "Back"=>"/~assign225" ];
+        $navbar=[ 'Add'=>'/~assign225/add',
+            'Back'=>'/~assign225' ];
         foreach ($navbar as $key => $value) {
             if ("$key" == 'Back') {
                 echo "<input type='submit' id='link' value='$key' onclick='getPoi()'/>";

@@ -3,56 +3,98 @@
 This documentation is written from scratch with the knowledge of Task I and as such, tasks prior to this point may seem more advanced than they should.
 Where necessary, notes are made to redirect to the relevant entry to explain said design choices.
 
+Each section includes the files required to achieve a goal and describes how the relevant code inside achieves said goal.
+
 ## Prerequisites
+
 ### index.php
+
 This file contains all the necessary code to function using the Slim framework (explained in further detail in task H).
 
 ### views/points\_of\_interest.phtml
+
 At the top of the page is a snippet of PHP code: `include('functions.php')`, which imports custom functions defined within the file to be used within this page.
 
 Within the html head of the page is a link to the css stylesheet and a favicon for the browser tab - both of which are explained in further detail within Task E.
 Also contained within is the page title `PointsOfInterest` and a link to the `ajax.js` JavaScript file (AJAX explained in further detail in task I).
 
-Within the html body is the website title and a custom PHP function, `navbar` (Explained in further detail in `functions.php`).
+Within the html body is the website title and a custom PHP function, `navbar` (explained in further detail in `functions.php`).
 The above mentioned additions are included in all `view/*.phtml` files, and as such will be ommitted from any further discussion of included files.
 
+Below is a drop-down menu, dynamically generated using a PHP while loop on an SQL query passed through from `index.php` that allows the user to filter search results by regions (explained in further detail in Task B).
 
-Acting as the main page users land to when browsing for the site, `points_of_interest` acts as a traditional home page, hosting a table that contains the fields of select columns within the database entries (`.phtml` format explained in further detail in Task H).
+Finally, the page contains two HTML divs: `searchresults` and `reviews` that will be populated with AJAX responses to display results to the user.
 
-The page contains two main areas that will be contained within html divs: `searchresults` and `reviews`.
+### functions.php
 
-It connects to the `pointsofinterest` database, which contains the fields: `ID`, `name`, `type`, `country`, `region`, `lon`, `lat`, `description`, `recommended`, and `username`.
-Both `ID` and `username` are entries that do not need to be known to the user, so could be excluded from the table entries within the page.
+This file contains two similar functions that are used within the Slim PHTML views; `navbar` and `poi_options`.
+`navbar` makes a decision based on whether the variable `$_SESSION['gatekeeper']` is set and provides links to either login and signup or logout and reset password based on that.
+In either case, a third option is always present to redirect the user back to the homepage.
 
-The results will be grabbed from the `pointsofinterest` database using the query: `SELECT * FROM pointsofinterest` ~~ORDER BY recommended DESC~~ via `index.php` (latter half explained in further detail in Task C).
+Similarly, `poi_options` provides the user an option to add a new POI (explained in further detail below) and a back button that refreshes the AJAX response if `$_SESSION['gatekeeper']` is set and prompts the user to login if not.
+
+In both functions, they loop through an array to set values that will be used within HTML links that are used within nav tags to generate the navbar menus.
 
 ## A) Allow a registered user to add a new point of interest (POI)
+
 The user should provide the name, type (e.g. hotel, city, historical site, bar, restaurant, beach, mountain, etc), and a description. This should add a record to the pointsofinterest table, containing the information the user entered together with the username of the currently logged-in user.
 
-### account.phtml
-This page will dynamically change to match the operation needed for a user account, but for this situation acts as the login/signup page for the user.
-Contained within will be a form, prompting the user for a `username` and `password`, as contained within the `poi_users` database, along with `id` and `isadmin` which cannot be entered by the user.
+### views/accounts.phtml
 
-### account.php
-### add\_poi.phtml
-.phtml format appears to have line-limit of 3000 characters. Have to move to .php
-### database.php
+As each POI requires the `username` value to be set within the database to denote who created it, the website requires a login system.
+To prevent having to create functions/pages to signup, login (and additionally change password), we can create one generic page that takes in the values all three functions require (username and password) within a form and dynamically send it send it to the correct location due to Slim's passed `index.php` argument `$action`.
+The `$action` agrument is determined by the navbar options generated by `functions.php` and will be explained in further detail below.
+
+### index.php
+
+When either login, signup or reset password are selected via the `navbar` function they link to the relative location in `/accounts/{(login|signup|reset)}` which will pass through the action as a vaiable `$value` to the `accounts.phtml` view where it will display the correct information based on that variable.
+
+When the submit button is clicked on `accounts.phtml`, it sends the POST data to the correct routes within within `index.php`.
+Logging in runs the prepared statement: `SLECT * FROM poi_users WHERE username=$post['username'] AND password=$post['password']` (prepared statements explained in furhter detail in Task E) followed by checking if `$_SESSION['isadmin']` is set and redirects to the admin page if set (explained in further detail in Task F) and back to the homepage if not.
+Similarly, signing up redirects back to the homepage after running `INSERT INTO poi_users (username,password) VALUES ($post['username'],$post['password'])`.
+
+When 'Add' is selected from `poi_options`, it routes to `/add` where it checks if the user is logged in, presenting the `add_poi.phtml` page if they are and redirecting back to the homepage if not.
+Once the user has submitted their new POI, the POST data gets routed to `/add_poi` where it once again checks if the user is logged in and runs `INSERT INTO pointsofinterest (name, type, country, region, lon, lat, description, username) VALUES ($post['name'], $post['type'], $post['country'], $post['region'], $post['lon'], $post['lat'], $post['description'], $post['username'])`.
+Logged in or not, the user will be redirected back to the homepage after.
+
+### views/add\_poi.phtml
+
+The page displays a form with input fields for all required values in the `pointsofinterest` table in the database, with `required` HTML tags on all fields as the database fails without complete input.
+`name`, `region` and `description` are text input fields with the former two having regex patterns of `^[a-zA-Z,.-]+$` which only allows alphabetical characters and special characters commonly used within names.
+Similarly, the `lon` and `lat` number input fields contain regex patterns that allow values to and from -180 > 180 and -90 > 90 respectively, with placeholder values to inform the user of valid input.
+Using patterns within the HTML form fields prevents invalid data being sent to the backend.
+
+Both the `type` and `country` fields are drop-down menus that present the user with valid options to prevent invalid input.
+`type` entries are decided based on existing entries within the database and `country` reads from a file (explained in further detail in `countries` below).
+Ideally, `region` would be a drop-down menu also, but to dynamically fetch every region available within a selected country would be far more work than the text input field above.
+
+As `poi_options` and `index.php` prevent and redirect the user from this page without being logged in, this ensures that the hidden input field containing the username value will always be set.
+
+### countries
+
+A simple file that contains every country available on a single line to be read in by `views/add\_poi.phtml` into a variable.
+As there are only a certain number of countries available in the world and new ones don't tend to pop up often, this seems like a better option than letting the user manually input a country.
 
 ## B) Allow a user to search for a POI by region
+
 A user should be able to enter a region (e.g. Hampshire, Normandy or California); once they have entered the region, all POIs in that region should appear.
 Each search result should contain a hyperlink labelled "Recommend", which should link to task c) (see below).
 
 ### views/points\_of\_interest.phtml
+
 A JSON array named `$regions` is sent to the view from `index.php` that contains all of the unique entries of regions within the `pointsofinterest` table using the query: `SELECT DISTINCT region FROM pointsofinterest`.
 
 ## C) Allow a user to recommend a POI
+
 For a basic pass, this should simply add one to the recommended column for that POI.
 [EXPLAIN REFERENCE FROM TASK A]
 
 ## D) Allow a user to view all reviews for a given POI
+
 A user should be able to select a place of interest from their search results; this will display all reviews for that place of interest. If you are not intending to complete task e), you may test this by adding reviews to the database via phpMyAdmin.
 
 ## E) Allow a user to review a POI
+
 This must add an appropriate record to the reviews table. Ignore the approved column for now.
 To achieve a Grade C, you must, in addition, ensure that you guard against SQL injection and cross-site scripting, must have no broken links, and implement a basic CSS stylesheet including custom layout and colour scheme (see below).
 
@@ -64,14 +106,17 @@ For a Grade B, it is necessary in addition to…
 [EXPLAIN CSS AND FAVICON]
 
 ## F) Allow administrator to approve reviews
+
 As well as approving a review, an administrator must be able to see a list of all pending reviews.
 To achieve a Grade B, you must, in addition, ensure that your site is user-friendly (see below).
 
 ## G) Implement the majority of your scripts using object-oriented PHP
+
 You should include some use of Data Access Objects (DAOs) in your code. It is not necessary to use Slim to complete this task.
 Task h) - must be implemented in full for an A2. For an A3, it must be mostly functional but there may be a small number of omissions.
 
 ## H) Implement the search and review functionality using Slim and AJAX.
+
 The "search for a POI by region" functionality must be implemented as a Slim endpoint, and you must include an AJAX front end which reads the user's search term, sends it to your Slim endpoint, and displays the search results to the user in a user-friendly, readable, well-formatted way.
 The "review" functionality must also be implemented as a Slim endpoint.
 It should receive the POI ID and the review as POST data. It should check that the ID and the review are valid.
@@ -80,4 +125,5 @@ Implement an AJAX review facility as follows. Each search result from your AJAX 
 [EXPLAIN REFERENCE FROM TASK A]
 
 ## I) Implement your search facility as a JSON web service and alter your AJAX front end to connect to this JSON web service
+
 Search results must continue to be displayed in a user-friendly, readable, well-formatted way.

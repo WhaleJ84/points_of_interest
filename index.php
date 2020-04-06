@@ -112,8 +112,12 @@ $app->post('/admin/approve', function (Request $req, Response $res, array $args)
 });
 
 $app->get('/add', function (Request $req, Response $res, array $args) use ($view) {
-    $res=$view->render($res, 'add_poi.phtml');
-    return $res;
+    if (isset($_SESSION['gatekeeper'])){
+        $res=$view->render($res, 'add_poi.phtml');
+        return $res;
+    } else {
+        return $res->withHeader('Location', '/~assign225');
+    }
 });
 
 $app->post('/add_poi', function (Request $req, Response $res, array $args) use ($conn) {
