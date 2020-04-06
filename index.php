@@ -96,9 +96,9 @@ $app->post('/recommend', function (Request $req, Response $res, array $args) use
 
 $app->get('/admin', function (Request $req, Response $res, array $args) use ($conn,$view) {
     if (!isset($_SESSION['isadmin'])) {
-        echo $routeParser->urlFor('root');
+        return $res->withHeader('Location', '/~assign225');
     }
-    $reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE approved=0 ORDER BY approved ASC');
+    $reviews=$conn->prepare('SELECT * FROM poi_reviews WHERE approved=0 ORDER BY poi_id ASC');
     $reviews->execute();
     $res=$view->render($res, 'admin.phtml', ['reviews'=>$reviews]);
     return $res;

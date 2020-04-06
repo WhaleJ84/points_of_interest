@@ -173,10 +173,26 @@ All POI viewing related actions are performed using AJAX requests, meaning the u
 *As well as approving a review, an administrator must be able to see a list of all pending reviews.
 To achieve a Grade B, you must, in addition, ensure that your site is user-friendly (see below).*
 
+### views/admin.phtml
+
+Working similar to other views, `admin.phtml` differs by receiving the variable `$reviews` and running a while loop on each review to be approved.
+Upon each loop, another SQL query is ran `SELECT * FROM pointsofinterest WHERE ID=$row['poi_id']` before dynamically populating a table with data from both queries.
+`$reviews` contains the review itself while the other query displays the name of the poi\_id rather than just displaying a number, which is far more appealing.
+Each entry is given a form button that upon click submits to `/admin/approve` where it changes its status to allow normal users to view it.
+
+### index.php
+
+Logging in, `/login` checks if `$_SESSION['isadmin']` is set and routes the player to `/admin` if true.
+`/admin` once again checks if the user actually is an admin, redirecting them back if not and grabbing all the reviews needing approval if they are with `SELECT * FROM poi_reviews WHERE approved=0 ORDER BY poi_id ASC`, sending them as a variable `reviews` to `admin.phtml`.
+
+`/admin/approve` runs `UPDATE poi_reviews SET approved=1 WHERE id=$post['id']` before sending the results back to `admin.phtml`.
+
 ## G) Implement the majority of your scripts using object-oriented PHP
 
 *You should include some use of Data Access Objects (DAOs) in your code. It is not necessary to use Slim to complete this task.
 Task h) - must be implemented in full for an A2. For an A3, it must be mostly functional but there may be a small number of omissions.*
+
+As the site implements Slim/AJAX features, DAOs have been skipped.
 
 ## H) Implement the search and review functionality using Slim and AJAX.
 
