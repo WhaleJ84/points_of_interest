@@ -92,8 +92,6 @@ In short `regionRequest` assigns the value from the drop-down menu to the variab
 The `name` entry is displayed as an submit button with the the JavaScript running `poiRequest(ID)` on click to allow the user to view individual points and their revuews (explained in further detail in Task D).
 The `recommend` entry is also a submit button that runs `recommend(ID)` on click (explained in further detail in Task C) and is displyed with a 'thumbs up' emoji, which in modern web design is associated with approving something.
 
-The majority of this file is explained in further detail in Task I
-
 ### index.php
 
 To prevent a user from trying to search for a region that doesn't exist within the database, before the `points_of_interest.phtml` view is loaded, the query `SELECT DISTINCT region FROM pointsofinterest` is saved to `$regions` and passed into the view to be loaded into the drop-down menu.
@@ -201,8 +199,34 @@ The "review" functionality must also be implemented as a Slim endpoint.
 It should receive the POI ID and the review as POST data. It should check that the ID and the review are valid.*
 
 *Implement an AJAX review facility as follows. Each search result from your AJAX search - task h) - should include a text box (to allow the user to enter a review) and a "Review" button. When the user clicks the Review button, an AJAX POST request should be sent to your Slim "review" endpoint. When the review has been added, a confirmation message must be displayed to the user, or an error message if the ID and/or review were not valid.*
-[EXPLAIN REFERENCE FROM TASK A]
+
+### index.php
+
+As explained in Task B, the Slim framework is already in place, loading the drop-down menu within the `/` (root) homepage, using the `SELECT DISTINCT region FROM pointsofinterest` query to present the user with all unique options.
+Upon submission `ajax.js` sends the response to `/region/{region}` with `regionRequest` where it runs `SELECT * FROM pointsofinterest WHERE region=$args['region'] ORDER BY recommended DESC` and returns it back to `ajax.js` where it's displayed with `displayPoints`.
+
+When an individual POI is viewed, the reviews are displayed in a table below an entry form that upon submission sends the POST data to `/add_review/{id}` from `submitReview` where it runs `INSERT INTO poi_reviews (poi_id,review) VALUES ($args['id'],$post['review'])` if the user is logged in.
+Following that, it will grab the reviews again with `SELECT * FROM poi_reviews WHERE poi_id=$args['id'] AND approved=1` to allow the page to be refreshed with an AJAX response with `getReview` and `displayReviews`.
+
+### scripts/ajax.json
+
+As explained in Task B, `regionRequest` grabs the value specified by the user and sends it as a GET request to `index.php` before displaing it as a AJAX response via `displayPoints`.
+
+As explained in Tasks D and E, `getReview(id)` grabs the reviews available for a POI by sending a GET request to `index.php` before displauing it as a AJAX response via `displayReviews` similar to above.
+`displayReviews` prefixes a textarea and submit button that links to `submitReview(id)` so the user can create a review.
+The id is determined via a cookie that is created in `displayPoints` by appending `poiData[0].ID` after expiring the previous implementation with `; expires=Thu, 01 Jan 1970 00:00:00 UTC` which is the beginning of UNIX Epoch time.
+This means that if an idividual POI was selected, the last cookie would get expired and a new one created from the for loop.
+As there is only one entry in the for loop, the ID of the current page will be stored in a cookie and can be used within `displayReviews` to create the `id` var.
 
 ## I) Implement your search facility as a JSON web service and alter your AJAX front end to connect to this JSON web service
 
 *Search results must continue to be displayed in a user-friendly, readable, well-formatted way.*
+
+### index.php
+
+
+
+### scripts/ajax.js
+
+
+
