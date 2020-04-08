@@ -224,9 +224,10 @@ As there is only one entry in the for loop, the ID of the current page will be s
 
 ### index.php
 
-
+Implementing JSON responses is simple with Slim, requiring the usual `return $res;` to be changed to `return $res->withJson($variable)` on the `/get_poi`,`/review/{id}`,`/region/{region}`,`/view/{id}`,`/recommend` and `/add_review/{id}` routes, where `ajax.js` will parse the responses.
 
 ### scripts/ajax.js
 
-
-
+All JSON responses are handled by either `displayPoints` or `displayReviews`, saving the responses to an array with `var varName = JSON.parse(?.target.responseText)`.
+From there, the content can be iterated through using a for loop and calling the variable `varName[#].value` to get the specific data we require, which in in contrast to how it would be achieved with a typical SQL query `$row['value']`.
+All responses are displayed within the `searchresults` and `reviews` divs within `points_of_interest.phtml`.
