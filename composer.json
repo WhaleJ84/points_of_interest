@@ -3,6 +3,8 @@
         "slim/slim": "^4.3",
         "slim/psr7" : "^0.6.0",
         "slim/http" :" ^1.0",
-        "slim/php-view": "^2.2"
+        "slim/php-view": "^2.2",
+        "jetbrains/phpstorm-stubs": "dev-master",
+        "felixfbecker/language-server": "^5.4"
     }
 }

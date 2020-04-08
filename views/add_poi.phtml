@@ -3,8 +3,8 @@ include('functions.php');
 ?>
 <html>
     <head>
-        <link rel='stylesheet' href='/pointsofinterest/style/main.css'/>
-        <link rel='icon' href='/pointsofinterest/images/favicon.png'/>
+        <link rel='stylesheet' href='/~assign225/style/main.css'/>
+        <link rel='icon' href='/~assign225/images/favicon.png'/>
         <title>PointsOfInterest</title>
     </head>
     <body>
@@ -18,13 +18,13 @@ include('functions.php');
                 <form method='post' action='add_poi'>
                     <tr>
                         <td><label for='name'>Name: </label></td>
-                        <td><input name='name' type='text' required/></td>
+                        <td><input name='name' type='text' pattern='^[a-zA-Z,.-]+$' required/></td>
                     </tr>
                     <tr>
                         <td><label for='type'>Type: </label></td>
                         <td><select name='type'>
-<?
-$types=array("Hotel","City","Historical Site","Bar","Restaurant","Beach","Mountain","Hill","Industrial Estate","Lost City","Moor","Port","Town","Village");
+<?php
+$types=array('Hotel','City','Historical Site','Bar','Pub','Restaurant','Beach','Mountain','Hill','Industrial Estate','Lost City','Moor','Port','Town','Village');
 foreach ($types as $type){
     echo "<option value='$type'>$type</option>";
     }
@@ -34,7 +34,7 @@ echo "</td>";
                     <tr>
                         <td><label for='country'>Country: </label></td>
                         <td><select name='country'>
-<?
+<?php
 $countries=file('countries');
 foreach ($countries as $country){
     echo "<option value='$country'>$country</option>";
@@ -44,22 +44,22 @@ echo "</td>";
                     </tr>
                     <tr>
                         <td><label for='region'>Region: </label></td>
-                        <td><input name='region' type='text' required/></td>
+                        <td><input name='region' type='text' pattern='^[a-zA-Z,.-]+$' required/></td>
                     </tr>
                     <tr>
                         <td><label for='lon'>Longitude: </label></td>
-                        <td><input type='text' name='lon' pattern='^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$' placeholder='0-180' required/></td>
+                        <td><input type='text' name='lon' maxlength='9' size='9' pattern='^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$' placeholder='(-)0-180' required/></td>
                     </tr>
                     <tr>
                         <td><label for='lat'>Latitude: </label></td>
-                        <td><input type='text' name='lat' pattern='^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$'placeholder='0-90' required/></td>
+                        <td><input type='text' name='lat' maxlength='9' size='9' pattern='^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$'placeholder='(-)0-90' required/></td>
                     </tr>
                     <tr>
                         <td><label for='description'>Description: </label></td>
                         <td><input name='description' type='text' required/></td>
                     </tr>
                     <tr>
-                        <td><input type='hidden' id='username' name='username' value='<?=$_SESSION['gatekeeper'];?>'/></td>
+                        <td><input type='hidden' id='username' name='username' value='<?php echo $_SESSION['gatekeeper']?>'/></td>
                         <td><input name='submit' type='submit'/></td>
                     </tr>
                 </form>

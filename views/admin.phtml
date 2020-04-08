@@ -1,10 +1,8 @@
-<?php
-include('functions.php');
-?>
+<?php include('functions.php')?>
 <html>
     <head>
-        <link rel='stylesheet' href='/pointsofinterest/style/main.css'/>
-        <link rel='icon' href='/pointsofinterest/images/favicon.png'/>
+        <link rel='stylesheet' href='/~assign225/style/main.css'/>
+        <link rel='icon' href='/~assign225/images/favicon.png'/>
         <title>PointsOfInterest</title>
     </head>
     <body>
@@ -16,24 +14,26 @@ include('functions.php');
             <div id='main'>
                 <table>
                     <tr>
-                        <td></td>
-                        <td>Reviews awaiting approval</td>
-                        <td></td>
+                        <th></th>
+                        <th>Reviews awaiting approval</th>
+                        <th></th>
                     </tr>
-<?while ($row=$reviews->fetch(PDO::FETCH_ASSOC)){
+<?php while ($row=$reviews->fetch(PDO::FETCH_ASSOC)){
 $conn=new PDO('mysql:host=localhost;dbname=assign225','assign225','umoodahc');
 $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $statement=$conn->prepare('SELECT * FROM pointsofinterest WHERE ID=?');
 $statement->execute([$row['poi_id']]);
 $name=$statement->fetch(PDO::FETCH_ASSOC)?>
                     <tr>
-                        <form method='post' action='/pointsofinterest/admin/approve'>
-                        <td><?=$name['name']?><input type='hidden' name='id' value='<?=$row['id']?>'/></td>
-                        <td><?=$row['review']?></td>
+                        <form method='post' action='/~assign225/admin/approve'>
+                        <td><?php echo $name['name']?><input type='hidden' name='id' value='<?php echo $row['id']?>'/></td>
+                        <td><?php echo $row['review']?></td>
                         <td><input type='submit' value='approve'/></td>
                         </form>
                     </tr>
-<?}?>
+<?php
+                }
+?>
                 </table>
             </div><!--[end]#main-->
         </div><!--[end]#content-->
