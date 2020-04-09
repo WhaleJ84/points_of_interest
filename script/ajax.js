@@ -61,7 +61,7 @@ function getReview(id){
 function submitReview(id){
     var xhr2 = new XMLHttpRequest();
     var review = document.getElementById('review').value;
-    xhr2.addEventListener('load', displayReviews);
+    xhr2.addEventListener('load', displayReviews(id));
     xhr2.onreadystatechange = function() {
         if (this.readyState === 4 && this.status === 200) {
             displayPoints;
@@ -99,8 +99,8 @@ function displayPoints(e){
     // We can then extract the individual fields with poiData[i].depart,
     // poiData[i].arrive, etc.
     for (var i = 0; i < poiData.length; i++) {
-        document.cookie = 'poi_id=' + poiData[0].ID + '; expires=Thu, 01 Jan 1970 00:00:00 UTC';
-        document.cookie = 'poi_id=' + poiData[0].ID;
+        //document.cookie = 'poi_id=' + poiData[0].ID + '; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+        //document.cookie = 'poi_id=' + poiData[0].ID;
         results = results + '<tr><td>' + poiData[i].ID + '</td>' +
         '<td><input type="submit" id="link" value="' + poiData[i].name + ' " onclick="poiRequest(' + poiData[i].ID + ')"></td>' +
         '<td>' + poiData[i].type + '</td>' +
@@ -118,9 +118,9 @@ function displayPoints(e){
     document.getElementById('searchresults').innerHTML = results;
 }
 
-function displayReviews(f) {
-    var cookie = document.cookie.split(';');
-    var id = cookie[0];
+function displayReviews(f,id) {
+    //var cookie = document.cookie.split(';');
+    //var id = cookie[0];
     var reviewData = JSON.parse(f.target.responseText);
     var results = '<br/><nav></nav><br/><table><tr><th>Reviews</th></tr><tr><td><textarea id="review" placeholder="Enter a review" required></textarea></td></tr><tr><td class="center"><input type="submit" id="reviewButton" value="Submit " onclick="submitReview(' + id + ')"/></td></tr>';
     for (var i = 0; i < reviewData.length; i++) {
