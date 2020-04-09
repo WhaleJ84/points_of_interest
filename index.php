@@ -105,10 +105,12 @@ $app->get('/admin', function (Request $req, Response $res, array $args) use ($co
 });
 
 $app->post('/admin/approve', function (Request $req, Response $res, array $args) use ($conn) {
-    $post=$req->getParsedBody();
-    $approve=$conn->prepare('UPDATE poi_reviews SET approved=1 WHERE id=?');
-    $approve->execute([$post['id']]);
-    return $res->withHeader('Location', '/~assign225/admin');
+    if (isset($_SESSION['isadmin'])){
+        $post=$req->getParsedBody();
+        $approve=$conn->prepare('UPDATE poi_reviews SET approved=1 WHERE id=?');
+        $approve->execute([$post['id']]);
+        return $res->withHeader('Location', '/~assign225/admin');
+    }
 });
 
 $app->get('/add', function (Request $req, Response $res, array $args) use ($view) {
@@ -124,7 +126,7 @@ $app->post('/add_poi', function (Request $req, Response $res, array $args) use (
     if (isset($_SESSION['gatekeeper'])){
         $post=$req->getParsedBody();
         $statement=$conn->prepare('INSERT INTO pointsofinterest (name,type,country,region,lon,lat,description,username) VALUES (?,?,?,?,?,?,?,?)');
-        $statement->execute([$post['name'],$post['type'],$post['country'],$post['region'],$post['lon'],$post['lat'],$post['description'],$post['username']]);
+        $statement->execute([$post['name'],$post['type'],$post['country'],$post['region'],$post['lon'],$post['lat'],$post['description'],$_SESSION['gatekeeper']]);
     }
     return $res->withHeader('Location', '/~assign225');
 });
