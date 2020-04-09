@@ -219,9 +219,9 @@ As explained in Task B, `regionRequest` grabs the value specified by the user an
 
 As explained in Tasks D and E, `getReview(id)` grabs the reviews available for a POI by sending a GET request to `index.php` before displaying it as a AJAX response via `displayReviews` similar to above.
 `displayReviews` prefixes a textarea and submit button that links to `submitReview(id)` so the user can create a review.
-The id is determined via a cookie that is created in `displayPoints` by appending `poiData[0].ID` after expiring the previous implementation with `; expires=Thu, 01 Jan 1970 00:00:00 UTC` which is the beginning of UNIX Epoch time.
-This means that if an individual POI was selected, the last cookie would get expired and a new one created from the for loop.
-As there is only one entry in the for loop, the ID of the current page will be stored in a cookie and can be used within `displayReviews` to create the `id` var.
+
+In order to pass the id through to `displayReviews`, we need to use a bind parameter in the `addEventListener` in `getReview(id)` and `submitReview(id)` functions.
+The new line resorts in `addEventListener('load', displayReviews.bind(this,id))` which allows the id parameter to be passed through as well as sending itself as `this` for the required `f` parameter `displayReviews` expects.
 
 ## I) Implement your search facility as a JSON web service and alter your AJAX front end to connect to this JSON web service
 
